@@ -9,6 +9,10 @@ export function randomInt(max) {
   return buffer[0] % max;
 }
 
+export function randomFraction() {
+  return randomInt(1_000_000) / 1_000_000;
+}
+
 export function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = randomInt(i + 1);
