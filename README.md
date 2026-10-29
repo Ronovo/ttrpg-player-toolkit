@@ -32,11 +32,12 @@ npm run preview   # serves dist/
 
 ### Docker
 
-The `Dockerfile` builds the site and serves `dist/` with nginx on port 80. It keeps no data, so it needs no volume.
+The `Dockerfile` builds the site and serves `dist/` with an unprivileged nginx on port 8080. It keeps no data, so it
+needs no volume.
 
 ```sh
 docker build -t ttrpg-player-toolkit .
-docker run -d -p 8080:80 ttrpg-player-toolkit
+docker run -d -p 8080:8080 ttrpg-player-toolkit
 ```
 
 `docker compose up -d --build` does the same on `127.0.0.1:8090`.
