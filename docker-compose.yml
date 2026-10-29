@@ -1,0 +1,8 @@
+name: ttrpg-player-toolkit
+
+services:
+  web:
+    build: .
+    container_name: ttrpg-player-toolkit
+    ports:
+      - "127.0.0.1:8090:80"
