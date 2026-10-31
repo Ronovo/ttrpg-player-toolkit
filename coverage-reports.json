@@ -1,0 +1,8 @@
+{
+  "title": "TTRPG Player Toolkit",
+  "source": "https://github.com/Ronovo/ttrpg-player-toolkit",
+  "reports": [
+    { "label": "JavaScript and React", "path": "js/", "summary": "coverage-summary.json", "format": "istanbul",
+      "about": "src/, the components, hooks, card and dice code, measured with Vitest" }
+  ]
+}

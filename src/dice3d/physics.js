@@ -14,6 +14,10 @@ const ROLL = { push: 1, spinBrake: 0.3 };
 // Pointy dice catch on their corners and edges, so they need a harder throw and less spin braking.
 const POINTY_ROLL = { push: 1.35, spinBrake: 0.15 };
 const ROLLS = { d4: POINTY_ROLL, d8: POINTY_ROLL, d10: POINTY_ROLL, d100: POINTY_ROLL };
+// Dice leave a tower door one after another, so they don't come out on top of each other.
+const EXIT_INTERVAL = 0.2;
+const EXIT_SPEED = [10, 14];
+const EXIT_SPREAD = 0.35;
 const polyhedrons = new Map();
 
 function between(min, max) {
@@ -42,7 +46,7 @@ export function createTable() {
     body.quaternion.setFromEuler(0, turn, 0);
     return body;
   });
-  return { world, dice, landing, walls, bodies: [], halfWidth: 0, halfDepth: 0 };
+  return { world, dice, wall, landing, walls, bodies: [], obstacles: [], halfWidth: 0, halfDepth: 0 };
 }
 
 export function setBounds(table, halfWidth, halfDepth) {
@@ -53,6 +57,24 @@ export function setBounds(table, halfWidth, halfDepth) {
   front.position.set(0, 0, halfDepth);
   table.halfWidth = halfWidth;
   table.halfDepth = halfDepth;
+}
+
+// Something standing on the table that dice bounce off, such as a dice tower.
+// `collider` is { shape: "cylinder", radius, height } or { shape: "box", halfWidth, halfDepth, height }.
+export function addObstacle(table, collider, x, z, turn) {
+  const shape = collider.shape === "box"
+    ? new CANNON.Box(new CANNON.Vec3(collider.halfWidth, collider.height / 2, collider.halfDepth))
+    : new CANNON.Cylinder(collider.radius, collider.radius, collider.height, 16);
+  const body = new CANNON.Body({ type: CANNON.Body.STATIC, shape, material: table.wall });
+  body.position.set(x, collider.height / 2, z);
+  body.quaternion.setFromEuler(0, turn, 0);
+  table.world.addBody(body);
+  table.obstacles.push(body);
+}
+
+export function clearObstacles(table) {
+  table.obstacles.forEach((body) => table.world.removeBody(body));
+  table.obstacles = [];
 }
 
 function polyhedron(shape) {
@@ -70,9 +92,16 @@ export function clearDice(table) {
   table.bodies = [];
 }
 
-// Dice enter from the left edge in a grid, each with its own random push and spin.
-// "dice" is a list of { type, shape }. Pointy dice only get their stronger roll on a wide table.
-export function throwDice(table, dice, { mass, restitution }, wide) {
+function release(table) {
+  table.bodies.forEach((body) => {
+    if (!body.world && table.elapsed >= body.releaseAt) table.world.addBody(body);
+  });
+}
+
+// Dice enter from the left edge in a grid, each with its own random push and spin. Given a tower `exit`
+// ({ x, z, heading }), they come out of its door instead, one after another.
+// "dice" is a list of { type, shape }. Pointy dice only get their stronger roll when `wide` is set.
+export function throwDice(table, dice, { mass, restitution }, { wide = false, exit = null } = {}) {
   clearDice(table);
   Object.assign(table, { shapes: dice.map((die) => die.shape), elapsed: 0, stillFor: 0, nudges: 0 });
   table.landing.restitution = restitution;
@@ -89,6 +118,16 @@ export function throwDice(table, dice, { mass, restitution }, wide) {
       sleepSpeedLimit: 0.3,
       sleepTimeLimit: 0.3,
     });
+    body.quaternion.setFromEuler(between(0, 2 * Math.PI), between(0, 2 * Math.PI), between(0, 2 * Math.PI));
+    body.angularVelocity.set(between(-20, 20), between(-20, 20), between(-20, 20));
+    if (exit) {
+      const heading = exit.heading + between(-EXIT_SPREAD, EXIT_SPREAD);
+      const push = between(...EXIT_SPEED) * roll.push;
+      body.position.set(exit.x + between(-0.3, 0.3), between(1.4, 2), exit.z + between(-0.3, 0.3));
+      body.velocity.set(Math.cos(heading) * push, between(0, 2), Math.sin(heading) * push);
+      body.releaseAt = i * EXIT_INTERVAL;
+      return body;
+    }
     const row = i % rows;
     const column = Math.floor(i / rows);
     body.position.set(
@@ -96,19 +135,19 @@ export function throwDice(table, dice, { mass, restitution }, wide) {
       between(3, 5),
       (row - (rows - 1) / 2) * SPACING + between(-0.4, 0.4),
     );
-    body.quaternion.setFromEuler(between(0, 2 * Math.PI), between(0, 2 * Math.PI), between(0, 2 * Math.PI));
     body.velocity.set(between(1.1, 1.6) * speed * roll.push, between(-2, 2), between(-0.3, 0.3) * speed);
-    body.angularVelocity.set(between(-20, 20), between(-20, 20), between(-20, 20));
-    table.world.addBody(body);
+    body.releaseAt = 0;
     return body;
   });
+  release(table);
 }
 
 export function step(table, seconds) {
   table.world.step(STEP, seconds, 10);
   table.elapsed += seconds;
+  release(table);
   const still = table.bodies.every(
-    (body) => body.velocity.length() < STILL_SPEED && body.angularVelocity.length() < STILL_SPIN,
+    (body) => body.world && body.velocity.length() < STILL_SPEED && body.angularVelocity.length() < STILL_SPIN,
   );
   table.stillFor = still ? table.stillFor + seconds : 0;
 }

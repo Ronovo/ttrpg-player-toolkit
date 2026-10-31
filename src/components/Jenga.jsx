@@ -1,16 +1,18 @@
 import { useMemo, useState } from "react";
-import useStoredState from "../hooks/useStoredState.js";
+import useStoredState, { parseStored } from "../hooks/useStoredState.js";
 import { TENSIONS, condition, leanAmount, newTower, pull } from "../lib/jenga.js";
+import Icon from "./Icon.jsx";
 
 export default function Jenga() {
   const [saved, setSaved] = useStoredState("ttrpg-toolkit-jenga", "");
   const [tension, setTension] = useState(TENSIONS[1].id);
-  const tower = useMemo(() => (saved ? JSON.parse(saved) : newTower(tension)), [saved, tension]);
+  const tower = useMemo(() => parseStored(saved, null) ?? newTower(tension), [saved, tension]);
   const started = tower.pulls > 0;
+  const status = tower.fallen ? "The tower fell!" : condition(tower);
 
   return (
     <section className="panel jenga">
-      <h2>Jenga</h2>
+      <h2><Icon name="tower" />Jenga</h2>
       <div className="jenga-layout">
         <div className="jenga-controls">
           <label>
@@ -26,14 +28,12 @@ export default function Jenga() {
               Pull
             </button>
             {started && (
-              <button type="button" onClick={() => setSaved("")}>Start Over</button>
+              <button type="button" className="secondary" onClick={() => setSaved("")}>Start Over</button>
             )}
           </div>
           <p className="jenga-status" aria-live="polite">
-            <span>Pulls: {tower.pulls}</span>
-            <span className={tower.fallen ? "jenga-fell" : undefined}>
-              {tower.fallen ? "The tower fell!" : condition(tower)}
-            </span>
+            <span className="chip">Pulls: {tower.pulls}</span>
+            <span className="chip" data-condition={tower.fallen ? "fallen" : status.toLowerCase()}>{status}</span>
           </p>
         </div>
         <div className="tower-area" aria-hidden="true">

@@ -1,13 +1,19 @@
 import { useState } from "react";
 import { addDeck, createStack } from "../lib/cards.js";
+import useStoredState from "../hooks/useStoredState.js";
 import Pile from "./Pile.jsx";
+import Icon from "./Icon.jsx";
+import ImageUpload from "./ImageUpload.jsx";
 
-export default function CardDrawer() {
+const CARD_BACK_SIZE = 512;
+
+// `stack` lives in App, so Home and the Card Drawer tab share one deck.
+export default function CardDrawer({ stack, setStack }) {
   const [type, setType] = useState("playing");
   const [deckCount, setDeckCount] = useState("1");
   const [includeJokers, setIncludeJokers] = useState(false);
   const [splitArcana, setSplitArcana] = useState(false);
-  const [stack, setStack] = useState(null);
+  const [cardBack, setCardBack] = useStoredState("ttrpg-toolkit-card-back", "");
   const isTarot = type === "tarot";
 
   function handleBuild(event) {
@@ -24,7 +30,7 @@ export default function CardDrawer() {
 
   return (
     <section className="panel card-drawer">
-      <h2>Card Drawer</h2>
+      <h2><Icon name="cards" />Card Drawer</h2>
       <form className="controls" onSubmit={handleBuild}>
         <label>
           Deck
@@ -47,6 +53,7 @@ export default function CardDrawer() {
           <label className="check">
             <input
               type="checkbox"
+              role="switch"
               checked={splitArcana}
               onChange={(event) => setSplitArcana(event.target.checked)}
             />
@@ -56,6 +63,7 @@ export default function CardDrawer() {
           <label className="check">
             <input
               type="checkbox"
+              role="switch"
               checked={includeJokers}
               onChange={(event) => setIncludeJokers(event.target.checked)}
             />
@@ -63,6 +71,10 @@ export default function CardDrawer() {
           </label>
         )}
         <button type="submit">Build Deck</button>
+        <ImageUpload label="Card back" maxSize={CARD_BACK_SIZE} onChange={setCardBack} />
+        {cardBack && (
+          <button type="button" className="secondary" onClick={() => setCardBack("")}>Reset back</button>
+        )}
       </form>
 
       {stack && (
@@ -72,7 +84,7 @@ export default function CardDrawer() {
               {stack.deckCount} {stack.type === "tarot" ? "tarot" : "playing card"} deck
               {stack.deckCount === 1 ? "" : "s"}
             </span>
-            <button type="button" onClick={() => setStack(addDeck)}>Add Deck</button>
+            <button type="button" className="secondary" onClick={() => setStack(addDeck)}>Add Deck</button>
           </div>
           <div className="piles">
             {stack.piles.map((pile, i) => (
@@ -80,6 +92,7 @@ export default function CardDrawer() {
                 key={pile.name}
                 pile={pile}
                 type={stack.type}
+                cardBack={cardBack}
                 onAction={(action) => updatePile(i, action)}
               />
             ))}

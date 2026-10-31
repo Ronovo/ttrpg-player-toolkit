@@ -1,8 +1,10 @@
 import { useLayoutEffect, useState } from "react";
+import Home from "./components/Home.jsx";
 import DiceRoller from "./components/DiceRoller.jsx";
 import CardDrawer from "./components/CardDrawer.jsx";
 import Notepad from "./components/Notepad.jsx";
 import Jenga from "./components/Jenga.jsx";
+import Icon from "./components/Icon.jsx";
 import useStoredState from "./hooks/useStoredState.js";
 
 const THEMES = [
@@ -20,13 +22,17 @@ const THEMES = [
 const THEME_IDS = THEMES.map((t) => t.id);
 
 const TABS = [
-  { id: "tools", label: "Tools" },
-  { id: "jenga", label: "Jenga" },
+  { id: "home", label: "Home", icon: "home" },
+  { id: "dice", label: "Dice Roller", icon: "d20" },
+  { id: "cards", label: "Card Drawer", icon: "cards" },
+  { id: "notes", label: "Notepad", icon: "quill" },
+  { id: "jenga", label: "Jenga", icon: "tower" },
 ];
 
 export default function App() {
   const [theme, setTheme] = useStoredState("ttrpg-toolkit-theme", THEME_IDS[0], THEME_IDS);
   const [tab, setTab] = useState(TABS[0].id);
+  const [stack, setStack] = useState(null);
 
   useLayoutEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -35,7 +41,10 @@ export default function App() {
   return (
     <>
       <header className="app-header">
-        <h1>TTRPG Player Toolkit</h1>
+        <div className="brand">
+          <Icon name="d20" className="brand-mark" />
+          <h1>TTRPG Player Toolkit</h1>
+        </div>
         <nav className="tabs" role="tablist">
           {TABS.map((t) => (
             <button
@@ -46,12 +55,14 @@ export default function App() {
               className="tab"
               onClick={() => setTab(t.id)}
             >
+              <Icon name={t.icon} />
               {t.label}
             </button>
           ))}
         </nav>
         <label className="theme-picker">
-          Style
+          <Icon name="palette" />
+          <span className="visually-hidden">Style</span>
           <select value={theme} onChange={(event) => setTheme(event.target.value)}>
             {THEMES.map((t) => (
               <option key={t.id} value={t.id}>{t.label}</option>
@@ -59,14 +70,23 @@ export default function App() {
           </select>
         </label>
       </header>
-      <main className="app-main" hidden={tab !== "tools"}>
-        <DiceRoller />
-        <Notepad />
-        <CardDrawer />
-      </main>
-      <main className="jenga-main" hidden={tab !== "jenga"}>
-        <Jenga />
-      </main>
+      {tab === "home" && <Home stack={stack} setStack={setStack} />}
+      {tab === "dice" && <DiceRoller />}
+      {tab === "cards" && (
+        <main className="tab-main">
+          <CardDrawer stack={stack} setStack={setStack} />
+        </main>
+      )}
+      {tab === "notes" && (
+        <main className="tab-main notes-main">
+          <Notepad />
+        </main>
+      )}
+      {tab === "jenga" && (
+        <main className="jenga-main">
+          <Jenga />
+        </main>
+      )}
     </>
   );
 }

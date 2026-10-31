@@ -3,16 +3,70 @@
     {
       "id": "base",
       "label": "Base",
-      "category": "-",
-      "body": "#f2eee4",
+      "category": "Base",
       "mass": 1,
       "restitution": 0.35
+    },
+    {
+      "id": "walnut",
+      "label": "Walnut",
+      "category": "Base",
+      "mass": 0.8,
+      "restitution": 0.4
+    },
+    {
+      "id": "maple",
+      "label": "Maple",
+      "category": "Base",
+      "mass": 0.8,
+      "restitution": 0.4
+    },
+    {
+      "id": "slate",
+      "label": "Slate",
+      "category": "Base",
+      "mass": 1.3,
+      "restitution": 0.25
+    },
+    {
+      "id": "granite",
+      "label": "Granite",
+      "category": "Base",
+      "mass": 1.5,
+      "restitution": 0.2
+    },
+    {
+      "id": "sandstone",
+      "label": "Sandstone",
+      "category": "Base",
+      "mass": 1.2,
+      "restitution": 0.2
+    },
+    {
+      "id": "terracotta",
+      "label": "Terracotta",
+      "category": "Base",
+      "mass": 1.1,
+      "restitution": 0.25
+    },
+    {
+      "id": "pewter",
+      "label": "Pewter",
+      "category": "Base",
+      "mass": 2.4,
+      "restitution": 0.15
+    },
+    {
+      "id": "copper",
+      "label": "Copper",
+      "category": "Base",
+      "mass": 2.3,
+      "restitution": 0.15
     },
     {
       "id": "crimson",
       "label": "Crimson",
       "category": "Basic",
-      "body": "#9e1b24",
       "mass": 1,
       "restitution": 0.35
     },
@@ -20,7 +74,6 @@
       "id": "cobalt",
       "label": "Cobalt",
       "category": "Basic",
-      "body": "#1f4fa8",
       "mass": 1,
       "restitution": 0.35
     },
@@ -28,7 +81,6 @@
       "id": "forest",
       "label": "Forest",
       "category": "Basic",
-      "body": "#2f5d3a",
       "mass": 1,
       "restitution": 0.35
     },
@@ -36,7 +88,6 @@
       "id": "onyx",
       "label": "Onyx",
       "category": "Basic",
-      "body": "#18181b",
       "mass": 1,
       "restitution": 0.35
     },
@@ -44,7 +95,6 @@
       "id": "sunflower",
       "label": "Sunflower",
       "category": "Basic",
-      "body": "#f2c230",
       "mass": 1,
       "restitution": 0.35
     },
@@ -52,7 +102,6 @@
       "id": "teal",
       "label": "Teal",
       "category": "Basic",
-      "body": "#1f7a7a",
       "mass": 1,
       "restitution": 0.35
     },
@@ -60,7 +109,6 @@
       "id": "amethyst",
       "label": "Amethyst",
       "category": "Basic",
-      "body": "#5b2f8f",
       "mass": 1,
       "restitution": 0.35
     },
@@ -68,7 +116,6 @@
       "id": "tangerine",
       "label": "Tangerine",
       "category": "Basic",
-      "body": "#e8701f",
       "mass": 1,
       "restitution": 0.35
     },
@@ -76,7 +123,41 @@
       "id": "mint",
       "label": "Mint",
       "category": "Basic",
-      "body": "#9fe0c4",
+      "mass": 1,
+      "restitution": 0.35
+    },
+    {
+      "id": "coral",
+      "label": "Coral",
+      "category": "Basic",
+      "mass": 1,
+      "restitution": 0.35
+    },
+    {
+      "id": "lavender",
+      "label": "Lavender",
+      "category": "Basic",
+      "mass": 1,
+      "restitution": 0.35
+    },
+    {
+      "id": "sky",
+      "label": "Sky",
+      "category": "Basic",
+      "mass": 1,
+      "restitution": 0.35
+    },
+    {
+      "id": "fuchsia",
+      "label": "Fuchsia",
+      "category": "Basic",
+      "mass": 1,
+      "restitution": 0.35
+    },
+    {
+      "id": "cocoa",
+      "label": "Cocoa",
+      "category": "Basic",
       "mass": 1,
       "restitution": 0.35
     },
@@ -137,6 +218,48 @@
       "restitution": 0.15
     },
     {
+      "id": "lapis-lazuli",
+      "label": "Lapis Lazuli",
+      "category": "Premium",
+      "mass": 1.4,
+      "restitution": 0.3
+    },
+    {
+      "id": "black-opal",
+      "label": "Black Opal",
+      "category": "Premium",
+      "mass": 1.2,
+      "restitution": 0.35
+    },
+    {
+      "id": "turquoise",
+      "label": "Turquoise",
+      "category": "Premium",
+      "mass": 1.2,
+      "restitution": 0.3
+    },
+    {
+      "id": "damascus",
+      "label": "Damascus Steel",
+      "category": "Premium",
+      "mass": 2.4,
+      "restitution": 0.15
+    },
+    {
+      "id": "amber",
+      "label": "Amber",
+      "category": "Premium",
+      "mass": 0.9,
+      "restitution": 0.35
+    },
+    {
+      "id": "bloodstone",
+      "label": "Bloodstone",
+      "category": "Premium",
+      "mass": 1.4,
+      "restitution": 0.3
+    },
+    {
       "id": "molten-obsidian",
       "label": "Molten Obsidian",
       "category": "Weird",
@@ -191,6 +314,48 @@
       "category": "Weird",
       "mass": 1,
       "restitution": 0.2
+    },
+    {
+      "id": "ectoplasm",
+      "label": "Ectoplasm",
+      "category": "Weird",
+      "mass": 0.7,
+      "restitution": 0.5
+    },
+    {
+      "id": "void",
+      "label": "Void",
+      "category": "Weird",
+      "mass": 1,
+      "restitution": 0.35
+    },
+    {
+      "id": "aurora",
+      "label": "Aurora",
+      "category": "Weird",
+      "mass": 1,
+      "restitution": 0.35
+    },
+    {
+      "id": "synthwave",
+      "label": "Synthwave",
+      "category": "Weird",
+      "mass": 1,
+      "restitution": 0.35
+    },
+    {
+      "id": "hologram",
+      "label": "Hologram",
+      "category": "Weird",
+      "mass": 1,
+      "restitution": 0.35
+    },
+    {
+      "id": "lava-lamp",
+      "label": "Lava Lamp",
+      "category": "Weird",
+      "mass": 1,
+      "restitution": 0.35
     }
   ],
   "dice": {
