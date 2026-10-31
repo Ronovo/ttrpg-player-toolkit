@@ -60,7 +60,6 @@
     {
       "id": "castle-keep",
       "label": "Castle Keep",
-      "category": "Basic",
       "height": 15.0,
       "entry": [
         0,
@@ -68,7 +67,7 @@
         0
       ],
       "exit": [
-        5.0,
+        5.1,
         1.6,
         0
       ],
@@ -78,40 +77,13 @@
       },
       "collider": {
         "shape": "cylinder",
-        "radius": 3.3,
-        "height": 15.0
-      }
-    },
-    {
-      "id": "watchtower",
-      "label": "Wooden Watchtower",
-      "category": "Basic",
-      "height": 15.0,
-      "entry": [
-        -0.8,
-        9.4,
-        0
-      ],
-      "exit": [
-        4.6,
-        1.6,
-        0
-      ],
-      "approach": {
-        "rise": 1.2,
-        "distance": 7
-      },
-      "collider": {
-        "shape": "box",
-        "halfWidth": 2.9,
-        "halfDepth": 2.9,
+        "radius": 3.4,
         "height": 15.0
       }
     },
     {
       "id": "lighthouse",
       "label": "Lighthouse",
-      "category": "Basic",
       "height": 15.0,
       "entry": [
         0.3973,
@@ -136,15 +108,14 @@
     {
       "id": "windmill",
       "label": "Windmill",
-      "category": "Basic",
       "height": 15.0,
       "entry": [
-        0.6387,
+        0.6419,
         7.8,
-        1.3698
+        1.3765
       ],
       "exit": [
-        5.0,
+        5.15,
         1.6,
         0
       ],
@@ -154,140 +125,13 @@
       },
       "collider": {
         "shape": "cylinder",
-        "radius": 3.3,
-        "height": 15.0
-      }
-    },
-    {
-      "id": "farm-silo",
-      "label": "Farm Silo",
-      "category": "Basic",
-      "height": 15.0,
-      "entry": [
-        0,
-        14.0,
-        0
-      ],
-      "exit": [
-        4.8,
-        1.6,
-        0
-      ],
-      "approach": {
-        "rise": 5,
-        "distance": 6
-      },
-      "collider": {
-        "shape": "cylinder",
-        "radius": 3.1,
-        "height": 15.0
-      }
-    },
-    {
-      "id": "brick-chimney",
-      "label": "Brick Chimney",
-      "category": "Basic",
-      "height": 15.0,
-      "entry": [
-        0,
-        14.0,
-        0
-      ],
-      "exit": [
-        4.4,
-        1.6,
-        0
-      ],
-      "approach": {
-        "rise": 5,
-        "distance": 6
-      },
-      "collider": {
-        "shape": "box",
-        "halfWidth": 2.7,
-        "halfDepth": 2.7,
-        "height": 15.0
-      }
-    },
-    {
-      "id": "birdhouse",
-      "label": "Birdhouse",
-      "category": "Basic",
-      "height": 15.0,
-      "entry": [
-        0.5071,
-        9.25,
-        1.0876
-      ],
-      "exit": [
-        4.8,
-        1.6,
-        0
-      ],
-      "approach": {
-        "rise": 1.0,
-        "distance": 7
-      },
-      "collider": {
-        "shape": "cylinder",
-        "radius": 3.1,
-        "height": 15.0
-      }
-    },
-    {
-      "id": "post-box",
-      "label": "Post Box",
-      "category": "Basic",
-      "height": 15.0,
-      "entry": [
-        0.6762,
-        9.4,
-        1.4501
-      ],
-      "exit": [
-        4.55,
-        1.6,
-        0
-      ],
-      "approach": {
-        "rise": 1.0,
-        "distance": 7
-      },
-      "collider": {
-        "shape": "cylinder",
-        "radius": 2.85,
-        "height": 15.0
-      }
-    },
-    {
-      "id": "barrel-stack",
-      "label": "Barrel Stack",
-      "category": "Basic",
-      "height": 15.0,
-      "entry": [
-        0,
-        13.8,
-        0
-      ],
-      "exit": [
-        4.8,
-        1.6,
-        0
-      ],
-      "approach": {
-        "rise": 5,
-        "distance": 6
-      },
-      "collider": {
-        "shape": "cylinder",
-        "radius": 3.1,
+        "radius": 3.45,
         "height": 15.0
       }
     },
     {
       "id": "wizard-spire",
       "label": "Wizard's Spire",
-      "category": "Premium",
       "height": 15.0,
       "entry": [
         -0.6,
@@ -312,15 +156,14 @@
     {
       "id": "clockwork",
       "label": "Clockwork Brass",
-      "category": "Premium",
       "height": 15.0,
       "entry": [
         0,
-        13.5,
+        12.6,
         0
       ],
       "exit": [
-        5.0,
+        5.1,
         1.6,
         0
       ],
@@ -330,40 +173,13 @@
       },
       "collider": {
         "shape": "cylinder",
-        "radius": 3.3,
-        "height": 15.0
-      }
-    },
-    {
-      "id": "marble-column",
-      "label": "Marble Column",
-      "category": "Premium",
-      "height": 15.0,
-      "entry": [
-        0,
-        14.1,
-        0
-      ],
-      "exit": [
-        4.7,
-        1.6,
-        0
-      ],
-      "approach": {
-        "rise": 5,
-        "distance": 6
-      },
-      "collider": {
-        "shape": "box",
-        "halfWidth": 3.0,
-        "halfDepth": 3.0,
+        "radius": 3.4,
         "height": 15.0
       }
     },
     {
       "id": "pagoda",
       "label": "Pagoda",
-      "category": "Premium",
       "height": 15.0,
       "entry": [
         0.317,
@@ -388,7 +204,6 @@
     {
       "id": "bell-tower",
       "label": "Bell Tower",
-      "category": "Premium",
       "height": 15.0,
       "entry": [
         0.5705,
@@ -411,59 +226,8 @@
       }
     },
     {
-      "id": "onion-dome",
-      "label": "Onion Dome",
-      "category": "Premium",
-      "height": 15.0,
-      "entry": [
-        0.6339,
-        9.9,
-        1.3595
-      ],
-      "exit": [
-        4.6,
-        1.6,
-        0
-      ],
-      "approach": {
-        "rise": 1.0,
-        "distance": 7
-      },
-      "collider": {
-        "shape": "cylinder",
-        "radius": 2.9,
-        "height": 15.0
-      }
-    },
-    {
-      "id": "jeweled-egg",
-      "label": "Jeweled Egg",
-      "category": "Premium",
-      "height": 15.0,
-      "entry": [
-        0,
-        13.1,
-        0
-      ],
-      "exit": [
-        4.7,
-        1.6,
-        0
-      ],
-      "approach": {
-        "rise": 5,
-        "distance": 6
-      },
-      "collider": {
-        "shape": "cylinder",
-        "radius": 3.0,
-        "height": 15.0
-      }
-    },
-    {
       "id": "grandfather-clock",
       "label": "Grandfather Clock",
-      "category": "Premium",
       "height": 15.0,
       "entry": [
         0.1268,
@@ -486,114 +250,13 @@
       }
     },
     {
-      "id": "jade-dragon-pillar",
-      "label": "Jade Dragon Pillar",
-      "category": "Premium",
+      "id": "rocket",
+      "label": "Rocket",
       "height": 15.0,
       "entry": [
-        0,
-        13.8,
-        0
-      ],
-      "exit": [
-        4.9,
-        1.6,
-        0
-      ],
-      "approach": {
-        "rise": 5,
-        "distance": 6
-      },
-      "collider": {
-        "shape": "cylinder",
-        "radius": 3.2,
-        "height": 15.0
-      }
-    },
-    {
-      "id": "cthulhu-shrine",
-      "label": "Cthulhu Shrine",
-      "category": "Weird",
-      "height": 15.0,
-      "entry": [
-        0,
-        14.4,
-        0
-      ],
-      "exit": [
-        5.6,
-        1.6,
-        0
-      ],
-      "approach": {
-        "rise": 5,
-        "distance": 6
-      },
-      "collider": {
-        "shape": "cylinder",
-        "radius": 3.9,
-        "height": 15.0
-      }
-    },
-    {
-      "id": "haunted-tree",
-      "label": "Haunted Tree",
-      "category": "Weird",
-      "height": 15.0,
-      "entry": [
-        0.4437,
-        7.6,
-        0.9516
-      ],
-      "exit": [
-        5.0,
-        1.6,
-        0
-      ],
-      "approach": {
-        "rise": 1.0,
-        "distance": 7
-      },
-      "collider": {
-        "shape": "cylinder",
-        "radius": 3.3,
-        "height": 15.0
-      }
-    },
-    {
-      "id": "toadstool",
-      "label": "Toadstool",
-      "category": "Weird",
-      "height": 15.0,
-      "entry": [
-        0,
-        14.0,
-        0
-      ],
-      "exit": [
-        4.2,
-        1.6,
-        0
-      ],
-      "approach": {
-        "rise": 5,
-        "distance": 6
-      },
-      "collider": {
-        "shape": "cylinder",
-        "radius": 2.5,
-        "height": 15.0
-      }
-    },
-    {
-      "id": "giant-worm",
-      "label": "Giant Worm",
-      "category": "Weird",
-      "height": 15.0,
-      "entry": [
-        0,
-        13.6,
-        0
+        0.6043,
+        7.3,
+        1.296
       ],
       "exit": [
         5.3,
@@ -601,8 +264,8 @@
         0
       ],
       "approach": {
-        "rise": 5,
-        "distance": 6
+        "rise": 1.0,
+        "distance": 7
       },
       "collider": {
         "shape": "cylinder",
@@ -611,114 +274,13 @@
       }
     },
     {
-      "id": "retro-robot",
-      "label": "Retro Robot",
-      "category": "Weird",
+      "id": "haunted-tree",
+      "label": "Haunted Tree",
       "height": 15.0,
       "entry": [
-        0.2113,
-        5.8,
-        0.4532
-      ],
-      "exit": [
-        4.6,
-        1.6,
-        0
-      ],
-      "approach": {
-        "rise": 1.0,
-        "distance": 7
-      },
-      "collider": {
-        "shape": "cylinder",
-        "radius": 2.9,
-        "height": 15.0
-      }
-    },
-    {
-      "id": "volcano",
-      "label": "Volcano",
-      "category": "Weird",
-      "height": 15.0,
-      "entry": [
-        0,
-        13.8,
-        0
-      ],
-      "exit": [
-        5.4,
-        1.6,
-        0
-      ],
-      "approach": {
-        "rise": 5,
-        "distance": 6
-      },
-      "collider": {
-        "shape": "cylinder",
-        "radius": 3.7,
-        "height": 15.0
-      }
-    },
-    {
-      "id": "geode",
-      "label": "Geode",
-      "category": "Weird",
-      "height": 15.0,
-      "entry": [
-        0,
-        13.0,
-        0
-      ],
-      "exit": [
-        5.1,
-        1.6,
-        0
-      ],
-      "approach": {
-        "rise": 5,
-        "distance": 6
-      },
-      "collider": {
-        "shape": "cylinder",
-        "radius": 3.4,
-        "height": 15.0
-      }
-    },
-    {
-      "id": "tesla-coil",
-      "label": "Tesla Coil",
-      "category": "Weird",
-      "height": 15.0,
-      "entry": [
-        0,
-        12.7,
-        0
-      ],
-      "exit": [
-        4.7,
-        1.6,
-        0
-      ],
-      "approach": {
-        "rise": 5,
-        "distance": 6
-      },
-      "collider": {
-        "shape": "cylinder",
-        "radius": 3.0,
-        "height": 15.0
-      }
-    },
-    {
-      "id": "rocket",
-      "label": "Rocket",
-      "category": "Weird",
-      "height": 15.0,
-      "entry": [
-        0.6043,
-        7.3,
-        1.296
+        0.4437,
+        7.55,
+        0.9516
       ],
       "exit": [
         5.1,
@@ -732,81 +294,6 @@
       "collider": {
         "shape": "cylinder",
         "radius": 3.4,
-        "height": 15.0
-      }
-    },
-    {
-      "id": "crooked-witch-house",
-      "label": "Crooked Witch House",
-      "category": "Weird",
-      "height": 15.0,
-      "entry": [
-        0.2958,
-        7.2,
-        0.6344
-      ],
-      "exit": [
-        4.9,
-        1.6,
-        0
-      ],
-      "approach": {
-        "rise": 1.0,
-        "distance": 7
-      },
-      "collider": {
-        "shape": "cylinder",
-        "radius": 3.2,
-        "height": 15.0
-      }
-    },
-    {
-      "id": "skull-pile",
-      "label": "Skull Pile",
-      "category": "Weird",
-      "height": 15.0,
-      "entry": [
-        0.4226,
-        11.0,
-        0.9063
-      ],
-      "exit": [
-        4.8,
-        1.6,
-        0
-      ],
-      "approach": {
-        "rise": 1.0,
-        "distance": 7
-      },
-      "collider": {
-        "shape": "cylinder",
-        "radius": 3.1,
-        "height": 15.0
-      }
-    },
-    {
-      "id": "alien-beacon",
-      "label": "Alien Beacon",
-      "category": "Weird",
-      "height": 15.0,
-      "entry": [
-        0,
-        14.0,
-        0
-      ],
-      "exit": [
-        4.5,
-        1.6,
-        0
-      ],
-      "approach": {
-        "rise": 5,
-        "distance": 6
-      },
-      "collider": {
-        "shape": "cylinder",
-        "radius": 2.8,
         "height": 15.0
       }
     }

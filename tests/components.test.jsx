@@ -369,7 +369,6 @@ describe('the tower picker', () => {
     return <TowerPicker tower={tower} setTower={setTower} />;
   }
 
-  const towersIn = (category) => props.towers.filter((tower) => tower.category === category);
   const shownTowers = () => [...document.querySelectorAll('.thumb-option')].map((option) => option.title);
   const flip = () => fireEvent.click(screen.getByRole('switch', { name: 'Tower' }));
 
@@ -379,14 +378,14 @@ describe('the tower picker', () => {
     expect(document.querySelector('.tower-picker').hasAttribute('inert')).toBe(true);
     expect(screen.getByText('No tower')).toBeTruthy();
     flip();
-    expect(chosen.id).toBe(towersIn('Basic')[0].id);
+    expect(chosen.id).toBe(props.towers[0].id);
     expect(document.querySelector('.tower-picker').hasAttribute('inert')).toBe(false);
   });
 
   it('switches back on to the tower chosen last', () => {
     render(<Picker initial="none" />);
     flip();
-    const second = towersIn('Basic')[1];
+    const second = props.towers[1];
     fireEvent.click(screen.getByRole('img', { name: second.label }));
     flip();
     expect(chosen.id).toBe('none');
@@ -394,14 +393,11 @@ describe('the tower picker', () => {
     expect(chosen.id).toBe(second.id);
   });
 
-  it('opens on the chosen tower\'s category and page, and a category tab stands its first tower', () => {
-    const weird = towersIn('Weird');
-    render(<Picker initial={weird[10].id} />);
-    expect(screen.getByText('2 / 2')).toBeTruthy();
-    expect(screen.getByText(weird[10].label, { selector: '.picker-name' })).toBeTruthy();
-    fireEvent.click(screen.getByLabelText('Premium'));
-    expect(chosen.id).toBe(towersIn('Premium')[0].id);
-    expect(shownTowers()).toEqual(towersIn('Premium').map((tower) => tower.label));
+  it('shows every tower on one page and names the chosen one', () => {
+    const last = props.towers.at(-1);
+    render(<Picker initial={last.id} />);
+    expect(shownTowers()).toEqual(props.towers.map((tower) => tower.label));
+    expect(screen.getByText(last.label, { selector: '.picker-name' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Next page' })).toBeNull();
   });
 });

@@ -15,7 +15,7 @@ notepad side by side, with the card drawer below. On a desktop it fits the windo
   window, with a large preview of the chosen set; on the Dice Roller tab they land on a **roll mat** with a felt, velvet, leather, wood or stone
   surface in any color, or your own picture, and an optional wood or leather rim. Turn on **Tower** to stand a
   dice tower on the mat: the dice drop in through a hole in its top or side and roll out of its door. There are
-  30, in Basic, Premium and Weird, from a lighthouse and a post box to a jeweled egg and a giant worm.
+  ten, from a lighthouse and a windmill to a rocket and a haunted tree.
 - **Card Drawer:** build a stack from any number of playing card decks (with or without jokers) or tarot decks.
   Draw, shuffle, discard and shuffle the discard back in, and add another deck at any time. Tarot cards come up
   reversed half the time, and the Major and Minor Arcana can be split into two piles. Each pile shows its deck

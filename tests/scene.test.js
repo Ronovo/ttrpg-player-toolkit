@@ -31,7 +31,9 @@ describe('dice towers', () => {
     expect([mesh.castShadow, mesh.receiveShadow, Boolean(first.castShadow)]).toEqual([true, true, false]);
   });
 
-  it.each(props.towers.map((tower) => [tower.id, tower]))('stands the %s in the back-left corner with its door to the middle',
+  // No tower stands on a square footprint at the moment, so one is made up to keep that reach in play.
+  const square = { ...towerInfo('castle-keep'), id: 'square', collider: { shape: 'box', halfWidth: 2.7, halfDepth: 2.2, height: 15 } };
+  it.each([...props.towers, square].map((tower) => [tower.id, tower]))('stands the %s in the back-left corner with its door to the middle',
     (_, tower) => {
       const placed = placeTower(tower);
       expect(placed.x).toBeLessThan(0);
