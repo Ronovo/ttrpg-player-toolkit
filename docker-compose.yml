@@ -6,3 +6,11 @@ services:
     container_name: ttrpg-player-toolkit
     ports:
       - "127.0.0.1:8090:8080"
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - ttrpg-toolkit-data:/app/data
+
+volumes:
+  ttrpg-toolkit-data:

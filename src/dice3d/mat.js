@@ -17,16 +17,12 @@ function surfaceTexture(id, kind) {
   return surfaces.get(name);
 }
 
-// An uploaded picture, cropped to cover the mat without stretching.
+// An uploaded picture. It was cropped to the mat's shape when it was uploaded.
 function uploadTexture(url) {
   if (upload?.url !== url) {
     upload?.texture.then((texture) => texture.dispose());
     const texture = textureLoader.loadAsync(url).then((loaded) => {
       loaded.colorSpace = THREE.SRGBColorSpace;
-      const imageAspect = loaded.image.width / loaded.image.height;
-      const matAspect = props.mat.width / props.mat.depth;
-      loaded.repeat.set(Math.min(1, matAspect / imageAspect), Math.min(1, imageAspect / matAspect));
-      loaded.offset.set((1 - loaded.repeat.x) / 2, (1 - loaded.repeat.y) / 2);
       return loaded;
     });
     upload = { url, texture };

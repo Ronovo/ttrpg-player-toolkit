@@ -1,59 +1,49 @@
 import { useEffect, useState } from "react";
-import useDiceRoll, { DICE_SIDES, useDiceSet } from "../hooks/useDiceRoll.js";
-import { DiceCount, RollResult } from "./DiceParts.jsx";
+import useDiceRoll, { useDiceSet } from "../hooks/useDiceRoll.js";
+import { thumbnailUrl } from "../lib/diceSets.js";
+import { DiceCount, DiePicker, RollResult } from "./DiceParts.jsx";
 import Icon from "./Icon.jsx";
-import SetPicker, { setThumbnail } from "./SetPicker.jsx";
+import SetPicker from "./SetPicker.jsx";
 
 export default function QuickRoller() {
   const { count, setCount, changeCount, sides, setSides, result, roll } = useDiceRoll();
   const [animate, setAnimate] = useState(false);
-  const [diceSet, setDiceSet] = useDiceSet();
+  const [diceSet, setDiceSet, chosenSet] = useDiceSet();
+  const preview = thumbnailUrl(chosenSet);
 
   useEffect(() => {
-    if (animate) import("../dice3d/table.js").then(({ prepareTable }) => prepareTable(diceSet));
-  }, [animate, diceSet]);
+    if (animate) import("../dice3d/table.js").then(({ prepareTable }) => prepareTable(chosenSet));
+  }, [animate, chosenSet]);
 
   function handleSubmit(event) {
     event.preventDefault();
-    roll(animate && ((n, s) => import("../dice3d/table.js").then(({ rollOnTable }) => rollOnTable(n, s, diceSet))));
+    roll(animate && ((n, s) => import("../dice3d/table.js").then(({ rollOnTable }) => rollOnTable(n, s, chosenSet))));
   }
 
   return (
     <section className="panel quick-roller">
       <h2><Icon name="d20" />Dice Roller</h2>
       <form className="dice-form" onSubmit={handleSubmit}>
+        <DiePicker sides={sides} setSides={setSides} />
         <div className="roll-controls">
-          <div className="field">
-            <span>Dice</span>
-            <DiceCount count={count} setCount={setCount} changeCount={changeCount} />
-          </div>
-          <label>
-            Type
-            <select value={sides} onChange={(event) => setSides(Number(event.target.value))}>
-              {DICE_SIDES.map((s) => (
-                <option key={s} value={s}>d{s}</option>
-              ))}
-            </select>
+          <DiceCount count={count} setCount={setCount} changeCount={changeCount} />
+          <label className="check">
+            <input
+              type="checkbox"
+              role="switch"
+              checked={animate}
+              onChange={(event) => setAnimate(event.target.checked)}
+            />
+            Animate
           </label>
-          <button type="submit" className="roll-button">Roll</button>
+          <button type="submit" className="action-button">Roll</button>
         </div>
-        <label className="check">
-          <input
-            type="checkbox"
-            role="switch"
-            checked={animate}
-            onChange={(event) => setAnimate(event.target.checked)}
-          />
-          Animate
-        </label>
-        {animate && (
-          <div className="quick-sets">
-            <div className="set-picker">
-              <SetPicker diceSet={diceSet} setDiceSet={setDiceSet} />
-            </div>
-            <img className="set-preview" src={setThumbnail(diceSet)} alt="" />
+        <div className={`quick-sets${animate ? "" : " idle"}`} inert={!animate}>
+          <div className="set-picker">
+            <SetPicker diceSet={diceSet} setDiceSet={setDiceSet} />
           </div>
-        )}
+          {preview ? <img className="set-preview" src={preview} alt="" /> : <Icon name="d20" className="set-preview" />}
+        </div>
       </form>
       <RollResult result={result} />
     </section>

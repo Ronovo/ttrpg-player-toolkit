@@ -1,0 +1,22 @@
+[project]
+name = "ttrpg-toolkit-server"
+version = "0.1.0"
+description = "Serves the TTRPG Player Toolkit, with portfolio login and each account's own dice sets"
+license = "BSD-2-Clause"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "flask==3.1.3",
+    "pyjwt[crypto]==2.15.1",
+    "ronovo-portfolio-auth @ https://github.com/Ronovo/ronovo-portfolio-auth/archive/refs/tags/v1.2.0.tar.gz",
+]
+
+[project.optional-dependencies]
+test = ["coverage==7.17.0"]
+
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["server*"]

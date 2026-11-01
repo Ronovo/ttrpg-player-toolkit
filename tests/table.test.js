@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as THREE from 'three';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 // jsdom has no WebGL, so the renderer and the environment map are stand-ins; everything else in three.js is the
 // real scene graph. Physics, the mat and the tower are stubbed so a test decides when the dice come to rest.
@@ -36,6 +37,11 @@ vi.mock('three/addons/environments/RoomEnvironment.js', () => ({ RoomEnvironment
 
 vi.mock('three/addons/loaders/GLTFLoader.js', () => ({
   GLTFLoader: class {
+    setDRACOLoader(dracoLoader) {
+      fakes.draco = dracoLoader;
+      return this;
+    }
+
     loadAsync(url) {
       fakes.loads.push(url);
       const scene = new THREE.Group();
@@ -77,6 +83,10 @@ const tower = vi.hoisted(() => ({
   animateDrop: vi.fn(() => true),
 }));
 vi.mock('../src/dice3d/tower.js', () => tower);
+
+const BASE = { id: 'base', mass: 1, restitution: 0.35 };
+const ONYX = { id: 'onyx', mass: 1, restitution: 0.35 };
+const UPLOADED = { id: 'a1b2', custom: true, mass: 1, restitution: 0.35 };
 
 let table;
 
@@ -120,10 +130,16 @@ function sizedContainer(width, height) {
   return container;
 }
 
+describe('the model loader', () => {
+  it('decodes Draco-compressed models', () => {
+    expect(fakes.draco).toBeInstanceOf(DRACOLoader);
+  });
+});
+
 describe('the window table', () => {
   it('is made once, fills the window and follows a resize', async () => {
-    await table.prepareTable('base');
-    await table.prepareTable('base');
+    await table.prepareTable(BASE);
+    await table.prepareTable(BASE);
     expect(document.querySelectorAll('canvas.dice-table.faded')).toHaveLength(1);
     expect(fakes.loads).toEqual(['/dice/base.glb']);
     const [renderer] = fakes.renderers;
@@ -141,7 +157,7 @@ describe('the window table', () => {
 
   it('resolves a roll with the dice once they rest, then fades and clears the dice', async () => {
     restAfter(2, [{ value: 5 }, { value: 3 }]);
-    const rolled = table.rollOnTable(2, 6, 'base');
+    const rolled = table.rollOnTable(2, 6, BASE);
     await frames(4);
     await expect(rolled).resolves.toEqual([5, 3]);
     const canvas = document.querySelector('canvas.dice-table');
@@ -159,17 +175,22 @@ describe('the window table', () => {
   });
 
   it('shares a downloaded dice set with the mat, which warms up its own see-through copy', async () => {
-    await table.prepareTable('base');
-    await table.prepareMat('base');
+    await table.prepareTable(BASE);
+    await table.prepareMat(BASE);
     expect(fakes.loads).toEqual(['/dice/base.glb']);
     expect(fakes.renderers).toHaveLength(2);
     expect(fakes.renderers[1].initialized.length).toBeGreaterThan(0);
   });
 
+  it('fetches an uploaded set from the server', async () => {
+    await table.prepareTable(UPLOADED);
+    expect(fakes.loads).toEqual(['/api/dice/a1b2.glb']);
+  });
+
   it('gives a roll that is replaced while still rolling a result of null', async () => {
-    const first = table.rollOnTable(1, 20, 'base');
+    const first = table.rollOnTable(1, 20, BASE);
     await frames(2);
-    const second = table.rollOnTable(1, 4, 'base');
+    const second = table.rollOnTable(1, 4, BASE);
     await expect(first).resolves.toBeNull();
     restAfter(0, [{ value: 2 }]);
     await frames(3);
@@ -177,8 +198,8 @@ describe('the window table', () => {
   });
 
   it('gives a roll replaced before its dice set loads a result of null', async () => {
-    const first = table.rollOnTable(1, 6, 'base');
-    const second = table.rollOnTable(1, 6, 'onyx');
+    const first = table.rollOnTable(1, 6, BASE);
+    const second = table.rollOnTable(1, 6, ONYX);
     await expect(first).resolves.toBeNull();
     restAfter(0, [{ value: 6 }]);
     await frames(3);
@@ -210,9 +231,9 @@ describe('the dice mat', () => {
 
   it('rolls with see-through copies of the dice and fades just the dice', async () => {
     table.mountMat(sizedContainer(800, 500));
-    await table.prepareMat('base');
+    await table.prepareMat(BASE);
     restAfter(0, [{ value: 1 }]);
-    const rolled = table.rollOnMat(1, 6, 'base');
+    const rolled = table.rollOnMat(1, 6, BASE);
     await frames(3);
     await expect(rolled).resolves.toEqual([1]);
     expect(document.querySelector('canvas.mat-canvas').classList.contains('faded')).toBe(false);
@@ -227,7 +248,7 @@ describe('the dice mat', () => {
   it('leaves mid-roll by ending the roll and standing the tower back up', async () => {
     const unmount = table.mountMat(sizedContainer(800, 500));
     await table.setTower('wooden');
-    const rolled = table.rollOnMat(1, 6, 'base');
+    const rolled = table.rollOnMat(1, 6, BASE);
     await frames(1);
     unmount();
     await expect(rolled).resolves.toBeNull();
@@ -316,7 +337,7 @@ describe('the dice tower', () => {
     await table.setTower('wooden');
     tower.animateDrop.mockReturnValueOnce(false).mockReturnValueOnce(true);
     restAfter(0, [{ value: 4 }]);
-    const rolled = table.rollOnMat(2, 6, 'base');
+    const rolled = table.rollOnMat(2, 6, BASE);
     await frames(1);
     expect(tower.startDrop).toHaveBeenCalledWith(expect.objectContaining({ x: 6, z: -4 }), 2);
     expect(physics.throwDice).not.toHaveBeenCalled();

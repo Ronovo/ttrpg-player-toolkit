@@ -2,6 +2,8 @@ import { randomInt, shuffle } from "./random.js";
 import { buildPlayingDeck, buildTarotDeck } from "./decks.js";
 
 export const REVERSED_CHANCE_PERCENT = 50;
+// Each deck's card shape, width over height.
+export const CARD_ASPECTS = { playing: 5 / 7, tarot: 7 / 12 };
 
 function newPile(name) {
   return { name, drawPile: [], drawn: [], discard: [] };

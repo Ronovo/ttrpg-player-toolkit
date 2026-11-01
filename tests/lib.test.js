@@ -6,7 +6,12 @@ import {
   REVERSED_CHANCE_PERCENT, addDeck, createStack, discardDrawn, drawCard, shuffleDiscardIn, shufflePile,
 } from '../src/lib/cards.js';
 import { TENSIONS, condition, fallenSoFar, leanAmount, newTower, pull } from '../src/lib/jenga.js';
-import { fileToDataUrl } from '../src/lib/images.js';
+import { closePicture, cropToDataUrl, fileToDataUrl, fitSize, largestCrop, readPicture } from '../src/lib/images.js';
+import { downloadFile } from '../src/lib/download.js';
+import {
+  TOOL_SIZES, addWindow, bottomOf, bringToFront, measuredLayout, moved, readLayout, removeWindow, replaceWindow, resized,
+} from '../src/lib/homeLayout.js';
+import { TOOLS } from '../src/lib/tools.js';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -204,7 +209,7 @@ describe('uploaded pictures', () => {
   it('shrinks a large picture to fit and saves it as WebP', async () => {
     const { bitmap, drawImage, toDataURL } = picture(2000, 1000);
     expect(await fileToDataUrl(new Blob(['x']), 500)).toBe('data:image/webp;base64,AA');
-    expect(drawImage).toHaveBeenCalledWith(bitmap, 0, 0, 500, 250);
+    expect(drawImage).toHaveBeenCalledWith(bitmap, 0, 0, 2000, 1000, 0, 0, 500, 250);
     expect(toDataURL).toHaveBeenCalledWith('image/webp', 0.85);
     expect(bitmap.close).toHaveBeenCalled();
   });
@@ -212,6 +217,128 @@ describe('uploaded pictures', () => {
   it('never enlarges a small picture', async () => {
     const { bitmap, drawImage } = picture(120, 300);
     await fileToDataUrl(new Blob(['x']), 500);
-    expect(drawImage).toHaveBeenCalledWith(bitmap, 0, 0, 120, 300);
+    expect(drawImage).toHaveBeenCalledWith(bitmap, 0, 0, 120, 300, 0, 0, 120, 300);
+  });
+
+  it('cuts a crop out of a picture and shrinks only the crop', () => {
+    const { bitmap, drawImage } = picture(2000, 1000);
+    cropToDataUrl(bitmap, { x: 300, y: 100, width: 700, height: 980 }, 512);
+    expect(drawImage).toHaveBeenCalledWith(bitmap, 300, 100, 700, 980, 0, 0, 366, 512);
+  });
+
+  it('finds the largest frame of a shape inside a picture', () => {
+    expect(largestCrop(1000, 1000, 5 / 7)).toEqual({ width: 1000 * 5 / 7, height: 1000 });
+    expect(largestCrop(1000, 1000, 1.6)).toEqual({ width: 1000, height: 625 });
+  });
+
+  it('gives the picture size that fills a shape at the saved size', () => {
+    expect([fitSize(5 / 7, 512), fitSize(7 / 12, 512), fitSize(1.6, 1600)]).toEqual([
+      { width: 366, height: 512 }, { width: 299, height: 512 }, { width: 1600, height: 1000 }]);
+  });
+
+  it('reads a picture for the crop window and frees it again', async () => {
+    const { bitmap } = picture(640, 480);
+    Object.assign(URL, { createObjectURL: vi.fn(() => 'blob:picture'), revokeObjectURL: vi.fn() });
+    const file = new Blob(['x']);
+    const read = await readPicture(file);
+    expect(read).toEqual({ bitmap, width: 640, height: 480, url: 'blob:picture' });
+    expect(URL.createObjectURL).toHaveBeenCalledWith(file);
+    closePicture(read);
+    expect([bitmap.close.mock.calls.length, URL.revokeObjectURL.mock.calls[0][0]]).toEqual([1, 'blob:picture']);
+  });
+});
+
+describe('downloads', () => {
+  it('hands the bytes to the browser as a named file and frees the address afterwards', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout'] });
+    Object.assign(URL, { createObjectURL: vi.fn(() => 'blob:sheet'), revokeObjectURL: vi.fn() });
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function record() {
+      expect([this.href, this.download]).toEqual(['blob:sheet', 'Thorin.pdf']);
+    });
+    downloadFile(new Uint8Array([1, 2]), 'Thorin.pdf', 'application/pdf');
+    const [blob] = URL.createObjectURL.mock.calls[0];
+    expect([blob.type, blob.size, click.mock.calls.length]).toEqual(['application/pdf', 2, 1]);
+    expect(URL.revokeObjectURL).not.toHaveBeenCalled();
+    vi.runAllTimers();
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:sheet');
+    vi.useRealTimers();
+  });
+});
+
+describe('the Home layout', () => {
+  const LAYOUT = [
+    { tool: 'dice', x: 0, y: 0, width: 0.5, height: 460, z: 1 },
+    { tool: 'notes', x: 0.5, y: 0, width: 0.5, height: 460, z: 2 },
+    { tool: 'cards', x: 0, y: 460, width: 1, height: 520, z: 3 },
+  ];
+  const dice = LAYOUT[0];
+
+  it('reads a saved layout, and finds none when nothing readable is saved', () => {
+    expect([readLayout('not json'), readLayout('{"tool": "dice"}'), readLayout(null), readLayout('')]).toEqual(
+      [null, null, null, null]);
+    expect(readLayout('[]')).toEqual([]);
+    expect(readLayout(JSON.stringify(LAYOUT))).toEqual(LAYOUT);
+  });
+
+  it('turns tools measured on screen into windows whose tools land on the same boxes', () => {
+    const area = { left: 20, top: 80, width: 976 };
+    const layout = measuredLayout(area, [
+      { tool: 'dice', rect: { left: 20, top: 80, width: 476, height: 399.6 } },
+      { tool: 'cards', rect: { left: 520, top: 503.6, width: 476, height: 300 } },
+    ], 24);
+    expect(layout).toEqual([
+      { tool: 'dice', x: 0, y: 0, width: 0.5, height: 424, z: 1 },
+      { tool: 'cards', x: 0.5, y: 424, width: 0.5, height: 324, z: 2 },
+    ]);
+    const canvasWidth = area.width + 24;
+    const cards = layout[1];
+    expect(area.left - 12 + cards.x * canvasWidth + 12).toBe(520);
+    expect(cards.width * canvasWidth - 24).toBe(476);
+  });
+
+  it('drops unknown tools, second copies and broken windows, and keeps the rest inside the canvas', () => {
+    const text = JSON.stringify([
+      { tool: 'dice', x: 0.9, y: -50, width: 3, height: 10, z: 2 },
+      { tool: 'dice', x: 0, y: 0, width: 0.5, height: 400, z: 3 },
+      { tool: 'radio', x: 0, y: 0, width: 0.5, height: 400, z: 4 },
+      { tool: 'notes', x: 0, y: 0, width: 0.5, height: 'tall', z: 5 },
+      { tool: 'jenga', x: 0.8, y: 20, width: 0.01, height: 900, z: 1 },
+      null,
+    ]);
+    expect(readLayout(text)).toEqual([
+      { tool: 'dice', x: 0, y: 0, width: 1, height: TOOL_SIZES.dice.minHeight, z: 2 },
+      { tool: 'jenga', x: 0.8, y: 20, width: 0.05, height: 900, z: 1 },
+    ]);
+  });
+
+  it('has a size for every tool', () => {
+    expect(Object.keys(TOOL_SIZES)).toEqual(TOOLS.map((tool) => tool.id));
+  });
+
+  it('adds a window below the rest, in front, and removes it again', () => {
+    expect(bottomOf([])).toBe(0);
+    expect(addWindow([], 'notes')).toEqual([{ tool: 'notes', x: 0, y: 0, width: 0.5, height: 460, z: 1 }]);
+    const added = addWindow(LAYOUT, 'sheet');
+    expect(added.at(-1)).toEqual({ tool: 'sheet', x: 0, y: 980, width: 0.6, height: 680, z: 4 });
+    expect(removeWindow(added, 'sheet')).toEqual(LAYOUT);
+  });
+
+  it('brings a window to the front, and leaves the layout alone when it is already there', () => {
+    expect(bringToFront(LAYOUT, 'cards')).toBe(LAYOUT);
+    expect(bringToFront(LAYOUT, 'dice').map((item) => item.z)).toEqual([4, 2, 3]);
+  });
+
+  it("changes a window's place and size but never its stacking", () => {
+    const changed = replaceWindow(LAYOUT, { ...dice, x: 0.1, z: 99 });
+    expect(changed[0]).toEqual({ ...dice, x: 0.1 });
+    expect(changed.slice(1)).toEqual(LAYOUT.slice(1));
+  });
+
+  it("moves and resizes within the canvas and the tool's smallest size", () => {
+    expect(moved(dice, 250, 40, 1000)).toEqual({ ...dice, x: 0.25, y: 40 });
+    expect(moved(dice, 900, -40, 1000)).toEqual({ ...dice, x: 0.5, y: 0 });
+    expect(resized(dice, 100, 20, 1000)).toEqual({ ...dice, width: 0.6, height: 480 });
+    expect(resized(dice, -900, -900, 1000)).toEqual({ ...dice, width: 0.32, height: 260 });
+    expect(resized({ ...dice, x: 0.9, width: 0.1 }, 0, 0, 1000).width).toBeCloseTo(0.1);
   });
 });

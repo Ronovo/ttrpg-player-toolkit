@@ -1,6 +1,5 @@
 :root {
   --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23a09a8e' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   --page-pattern: none;
   --grain: 0.05;
   --radius: 14px;
@@ -406,10 +405,15 @@
   --card-width: 84px;
   --name-size: 0.75rem;
   --name-lines: 3;
+  scrollbar-color: var(--panel-border) transparent;
 }
 
 * {
   box-sizing: border-box;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--heading-color) 35%, transparent);
 }
 
 body {
@@ -475,31 +479,14 @@ h3 {
   gap: 0.75rem 1rem;
   max-width: 1400px;
   margin: 0 auto;
-  padding: var(--pad);
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.brand-mark {
-  width: 2.1rem;
-  height: 2.1rem;
-  color: var(--heading-color);
-  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--heading-color) 45%, transparent));
-}
-
-.app-header h1 {
-  margin: 0;
-  font-size: 1.25rem;
-  line-height: 1.1;
+  padding: 0.75rem var(--pad);
+  border-bottom: 1px solid color-mix(in srgb, var(--panel-border) 70%, transparent);
 }
 
 .theme-picker {
   flex-direction: row;
   align-items: center;
+  margin-left: auto;
   gap: 0.45rem;
   color: var(--heading-color);
 }
@@ -507,6 +494,47 @@ h3 {
 .theme-picker .icon {
   width: 1.4rem;
   height: 1.4rem;
+}
+
+.theme-picker select {
+  padding-left: 0.9rem;
+  border-radius: 999px;
+}
+
+.account {
+  border-radius: 999px;
+}
+
+.header-tools {
+  display: contents;
+}
+
+.home-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.app-header:has(.home-controls) .theme-picker {
+  margin-left: 0;
+}
+
+/* While Home is being edited the tabs show only their icons, so its controls fit on the same line. */
+.app-header:has(.home-controls.editing) .tab {
+  padding: 0.35rem 0.75rem;
+}
+
+.app-header:has(.home-controls.editing) .tab-label {
+  display: none;
+}
+
+.login-error {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0.5rem var(--pad) 0;
+  color: var(--reversed);
 }
 
 .tabs,
@@ -574,7 +602,7 @@ h3 {
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 var(--pad) var(--pad);
+  padding: var(--pad);
 }
 
 .home-top {
@@ -582,8 +610,88 @@ h3 {
   gap: var(--gap);
 }
 
-.dice-page:not(.animated) {
-  max-width: 760px;
+/* On phones the windows stack in one column, top to bottom by where they sit on the canvas. The negative margin
+   and each window's padding of half a gap keep a tool's own box where measuredLayout put it. */
+.home-canvas {
+  display: flex;
+  flex-direction: column;
+  margin: calc(var(--gap) / -2);
+}
+
+.home-window {
+  position: relative;
+  order: var(--order);
+  height: var(--h);
+  padding: calc(var(--gap) / 2);
+}
+
+.window-body {
+  height: 100%;
+}
+
+.window-body > .panel {
+  height: 100%;
+  overflow: auto;
+}
+
+.window-body > .character-sheet {
+  display: flex;
+  flex-direction: column;
+}
+
+.window-body .sheet-stage {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 16rem;
+}
+
+.window-body .jenga {
+  max-width: none;
+}
+
+.window-cover {
+  position: absolute;
+  inset: calc(var(--gap) / 2);
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.6rem;
+  background: color-mix(in srgb, var(--heading-color) 10%, transparent);
+  border: 2px dashed var(--heading-color);
+  border-radius: var(--radius);
+  cursor: move;
+  touch-action: none;
+}
+
+.window-cover:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.window-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.7rem;
+  background: var(--input-bg);
+  color: var(--heading-color);
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  font-family: var(--heading-font);
+  font-weight: var(--heading-weight);
+}
+
+.window-grip {
+  display: none;
+}
+
+/* The roller keeps one width with Animate on or off, so turning it on never rewraps the roller. */
+.dice-page .dice-roller {
+  justify-self: center;
+  width: 100%;
+  max-width: 30rem;
 }
 
 .panel {
@@ -620,8 +728,53 @@ h3 {
 }
 
 .panel h2 .icon {
-  width: 1.35em;
-  height: 1.35em;
+  width: 1.9em;
+  height: 1.9em;
+  padding: 0.3em;
+  background: var(--chip-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+}
+
+[data-theme="tabletop"] .panel::after,
+[data-theme="casino"] .panel::after {
+  --bracket: linear-gradient(var(--heading-color), var(--heading-color));
+  content: "";
+  position: absolute;
+  inset: 6px;
+  pointer-events: none;
+  background:
+    var(--bracket) left top / 14px 2px,
+    var(--bracket) left top / 2px 14px,
+    var(--bracket) right top / 14px 2px,
+    var(--bracket) right top / 2px 14px,
+    var(--bracket) left bottom / 14px 2px,
+    var(--bracket) left bottom / 2px 14px,
+    var(--bracket) right bottom / 14px 2px,
+    var(--bracket) right bottom / 2px 14px;
+  background-repeat: no-repeat;
+  opacity: 0.55;
+}
+
+[data-theme="parchment"] .panel::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  pointer-events: none;
+  border: 1px solid color-mix(in srgb, var(--heading-color) 35%, transparent);
+  border-radius: calc(var(--radius) - 3px);
+}
+
+[data-theme="neon"] .panel::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  right: 10%;
+  left: 10%;
+  height: 2px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--heading-color), transparent);
+  box-shadow: 0 0 12px var(--heading-color);
 }
 
 .controls {
@@ -650,6 +803,7 @@ label.check {
 }
 
 input[type="number"],
+input[type="text"],
 select {
   min-height: 2.35rem;
   padding: 0.45rem 0.6rem;
@@ -663,17 +817,21 @@ select {
 }
 
 input[type="number"]:hover,
+input[type="text"]:hover,
 select:hover {
   border-color: color-mix(in srgb, var(--input-border), var(--heading-color) 40%);
 }
 
+/* Two half-filled squares side by side make a small down-pointing triangle in the text color. */
 select {
   appearance: none;
   padding-right: 2rem;
-  background-image: var(--select-arrow);
+  background-image:
+    linear-gradient(45deg, transparent 50%, color-mix(in srgb, currentColor 65%, transparent) 50%),
+    linear-gradient(135deg, color-mix(in srgb, currentColor 65%, transparent) 50%, transparent 50%);
   background-repeat: no-repeat;
-  background-position: right 0.65rem center;
-  background-size: 0.75rem;
+  background-position: right 0.95rem center, right 0.65rem center;
+  background-size: 0.3rem 0.3rem;
   cursor: pointer;
 }
 
@@ -727,7 +885,8 @@ input[type="checkbox"]:checked::before {
 }
 
 button,
-.file-button {
+.file-button,
+.account {
   display: inline-flex;
   flex-direction: row;
   align-items: center;
@@ -761,14 +920,17 @@ button:disabled {
 }
 
 button.secondary,
-.file-button {
+.file-button,
+.account {
   background: var(--chip-bg);
   color: var(--text);
   box-shadow: inset 0 0 0 1px var(--panel-border);
+  text-decoration: none;
 }
 
 button.secondary:hover:not(:disabled),
-.file-button:hover {
+.file-button:hover,
+.account:hover {
   filter: none;
   color: var(--heading-color);
   box-shadow: inset 0 0 0 1px var(--heading-color);
@@ -819,6 +981,13 @@ input[type="color"]::-moz-color-swatch {
   border: 0;
 }
 
+.die-picker legend {
+  margin-bottom: 0.35rem;
+  padding: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
 .die-option {
   align-items: center;
   gap: 0.2rem;
@@ -858,21 +1027,13 @@ input[type="color"]::-moz-color-swatch {
 .roll-controls {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   gap: 0.75rem;
 }
 
 .roll-controls label.check {
-  padding: 0;
-}
-
-.quick-roller .roll-controls {
-  align-items: flex-end;
-}
-
-.quick-roller label.check {
-  align-self: flex-start;
   min-height: 2.35rem;
+  padding: 0;
 }
 
 .quick-sets {
@@ -884,13 +1045,16 @@ input[type="color"]::-moz-color-swatch {
 
 .set-preview {
   width: 100%;
+  height: auto;
   aspect-ratio: 1;
   object-fit: contain;
+  color: var(--muted);
   filter: drop-shadow(0 8px 14px rgb(0 0 0 / 0.45));
 }
 
 .stepper {
   display: inline-flex;
+  font-size: 1rem;
 }
 
 .stepper input[type="number"] {
@@ -917,7 +1081,7 @@ input[type="color"]::-moz-color-swatch {
   height: 1rem;
 }
 
-.roll-button {
+.action-button {
   flex: 1 1 8rem;
   min-height: 2.75rem;
   font-family: var(--heading-font);
@@ -944,15 +1108,36 @@ input[type="color"]::-moz-color-swatch {
   align-self: stretch;
 }
 
+.roll-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  transition: opacity 0.25s, filter 0.25s;
+}
+
+.roll-options label.check {
+  padding: 0;
+}
+
+label.check:has(:disabled),
+label.check :disabled {
+  cursor: default;
+}
+
+label.check:has(:disabled) {
+  opacity: 0.5;
+}
+
 .set-picker.idle,
-.tower-picker.idle {
+.roll-options.idle,
+.quick-sets.idle {
   opacity: 0.4;
   filter: grayscale(0.6);
 }
 
 .thumb-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(3.6rem, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 4rem));
   gap: 0.4rem;
   width: 100%;
 }
@@ -975,11 +1160,25 @@ input[type="color"]::-moz-color-swatch {
   filter: drop-shadow(0 3px 4px rgb(0 0 0 / 0.4));
 }
 
-.thumb-option span {
-  border: 1px dashed var(--panel-border);
-  border-radius: 8px;
-  padding: 0.6rem 0.4rem;
-  font-size: 0.75rem;
+.thumb-generic {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.15rem;
+  width: 100%;
+  height: 100%;
+  padding: 0.25rem;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.65rem;
+  line-height: 1.1;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.thumb-generic .icon {
+  width: 45%;
+  height: auto;
 }
 
 .thumb-option:hover {
@@ -1063,7 +1262,6 @@ input[type="color"]::-moz-color-swatch {
 
 .roll-result {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: 0.6rem 0.75rem;
   min-height: 4.6rem;
@@ -1073,22 +1271,36 @@ input[type="color"]::-moz-color-swatch {
 }
 
 .roll-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   color: var(--muted);
   font-family: var(--heading-font);
   font-weight: var(--heading-weight);
 }
 
+.roll-hint {
+  color: var(--muted);
+  font-style: italic;
+  opacity: 0.7;
+}
+
+/* One line that scrolls sideways when the dice do not fit, so the panel never grows with a roll. */
 .roll-dice {
   display: flex;
-  flex-wrap: wrap;
+  flex: 1 1 auto;
   gap: 0.35rem;
+  min-width: 0;
   margin: 0;
-  padding: 0;
+  padding: 0 0 2px;
+  overflow-x: auto;
+  scrollbar-width: thin;
   list-style: none;
 }
 
 .die {
   display: grid;
+  flex: none;
   place-items: center;
   min-width: 2.3rem;
   height: 2.3rem;
@@ -1100,6 +1312,15 @@ input[type="color"]::-moz-color-swatch {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   animation: die-in 0.25s ease-out backwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+.die.max {
+  box-shadow: 0 0 0 2px var(--total-color), 0 0 10px color-mix(in srgb, var(--total-color) 50%, transparent);
+}
+
+.die.min {
+  box-shadow: 0 0 0 2px var(--reversed);
 }
 
 .roll-total {
@@ -1145,6 +1366,14 @@ input[type="color"]::-moz-color-swatch {
 
 .dice-table.faded {
   opacity: 0;
+}
+
+.controls-aside {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: auto;
 }
 
 .stack-header {
@@ -1218,14 +1447,6 @@ input[type="color"]::-moz-color-swatch {
 .pile button.secondary:hover:not(:disabled) {
   color: var(--table-text);
   box-shadow: inset 0 0 0 1px var(--table-text);
-}
-
-.pile.playing {
-  --card-aspect: 5 / 7;
-}
-
-.pile.tarot {
-  --card-aspect: 7 / 12;
 }
 
 /* min-height reserves one card, its name, and room for the sideways
@@ -1390,7 +1611,202 @@ input[type="color"]::-moz-color-swatch {
   filter: drop-shadow(0 0 6px color-mix(in srgb, var(--heading-color) 50%, transparent));
 }
 
+.crop-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: var(--pad);
+  background: rgb(0 0 0 / 0.6);
+}
+
+.crop-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: min(36rem, 100%);
+  max-height: 100%;
+  overflow: auto;
+}
+
+.crop-dialog h2 {
+  margin-bottom: 0;
+}
+
+/* The picture is shown whole; the frame's huge shadow darkens everything outside the crop. */
+.crop-stage {
+  position: relative;
+  max-width: 100%;
+  max-height: 60vh;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 6px;
+  touch-action: none;
+  user-select: none;
+}
+
+.crop-stage img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.crop-frame {
+  position: absolute;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 9999px rgb(0 0 0 / 0.55), inset 0 0 0 1px rgb(0 0 0 / 0.4);
+  cursor: move;
+}
+
+.crop-frame:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.crop-hint {
+  margin: 0;
+  color: var(--total-color);
+  font-size: 0.85rem;
+}
+
+.crop-zoom {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.crop-zoom input {
+  flex: 1;
+  accent-color: var(--heading-color);
+}
+
+.crop-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.sheet-login {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sheet-login p {
+  margin: 0;
+}
+
+.confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--chip-bg);
+  border: 1px solid var(--heading-color);
+  border-radius: 8px;
+}
+
+.confirm p {
+  flex: 1 1 16rem;
+  margin: 0;
+}
+
+.sheet-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: var(--gap) 0 0.75rem;
+}
+
+.sheet-toolbar .secondary[aria-label] {
+  min-width: 2.35rem;
+  padding: 0;
+}
+
+.sheet-name {
+  margin-right: auto;
+  color: var(--heading-color);
+  font-family: var(--heading-font);
+  font-weight: var(--heading-weight);
+  overflow-wrap: anywhere;
+}
+
+.sheet-status {
+  min-width: 7rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* pdf.js wants its scrolling box absolutely positioned, so the stage gives it a size to fill. */
+.sheet-stage {
+  position: relative;
+  height: 75vh;
+  min-height: 24rem;
+  overflow: hidden;
+  background: #4a4d52;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  box-shadow: inset 0 0 24px rgb(0 0 0 / 0.35);
+}
+
+.sheet-scroll {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+}
+
+.my-dice {
+  margin-top: var(--gap);
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--panel-border);
+}
+
+.my-dice h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+}
+
+.form-note,
+.form-error {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+}
+
+.form-note {
+  color: var(--muted);
+}
+
+.form-error {
+  color: var(--reversed);
+}
+
+.my-sets {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.my-sets li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.3rem 0.4rem 0.3rem 0.7rem;
+  background: var(--chip-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+}
+
 .mat-view {
+  position: relative;
   width: 100%;
   aspect-ratio: 16 / 10;
   overflow: hidden;
@@ -1399,19 +1815,27 @@ input[type="color"]::-moz-color-swatch {
   box-shadow: inset 0 0 24px rgb(0 0 0 / 0.35);
 }
 
+.mat-view::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgb(0 0 0 / 0.35) 100%);
+}
+
 .mat-canvas {
   display: block;
   width: 100%;
   height: 100%;
 }
 
-.mat-settings {
+.settings-panel {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
 }
 
-.mat-settings h2 {
+.settings-panel h2 {
   margin-bottom: 0;
 }
 
@@ -1425,18 +1849,6 @@ input[type="color"]::-moz-color-swatch {
 .setting h3 {
   margin: 0;
   font-size: 0.95rem;
-}
-
-.setting-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.6rem;
-  align-self: stretch;
-}
-
-.setting-head label.check {
-  padding: 0;
 }
 
 .setting-row {
@@ -1528,39 +1940,74 @@ input[type="color"]::-moz-color-swatch {
   color: var(--heading-color);
 }
 
-.jenga-status .chip[data-condition] {
+.jenga [data-condition] {
   --condition: #4fbf74;
+}
+
+.jenga [data-condition="wobbly"] {
+  --condition: #e2c044;
+}
+
+.jenga [data-condition="teetering"] {
+  --condition: #ee8a35;
+}
+
+.jenga [data-condition="doomed"],
+.jenga [data-condition="fallen"] {
+  --condition: #e5484d;
+}
+
+.jenga-status .chip[data-condition] {
   background: color-mix(in srgb, var(--condition) 16%, transparent);
   color: color-mix(in oklab, var(--condition) 70%, var(--text));
   border-color: color-mix(in srgb, var(--condition) 55%, transparent);
 }
 
-.jenga-status .chip[data-condition="wobbly"] {
-  --condition: #e2c044;
+.risk-meter {
+  width: 100%;
+  height: 0.5rem;
+  background: var(--chip-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  overflow: hidden;
 }
 
-.jenga-status .chip[data-condition="teetering"] {
-  --condition: #ee8a35;
-}
-
-.jenga-status .chip[data-condition="doomed"],
-.jenga-status .chip[data-condition="fallen"] {
-  --condition: #e5484d;
+.risk-meter span {
+  display: block;
+  width: calc(var(--risk) * 100%);
+  height: 100%;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--condition) 55%, transparent), var(--condition));
+  transition: width 0.5s ease, background 0.5s;
 }
 
 .tower-area {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: flex-end;
   min-height: 22rem;
   padding: 1.5rem 1rem 1.25rem;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse 34% 3.5% at 50% calc(100% - 1.25rem), rgb(0 0 0 / 0.45), transparent),
-    var(--table-bg);
+  background: var(--table-bg);
   border: 1px solid var(--table-border);
   border-radius: 12px;
   box-shadow: inset 0 0 30px rgb(0 0 0 / 0.35);
+}
+
+/* The board the tower stands on; its top sits level with the tower's bottom padding. */
+.tower-area::before {
+  content: "";
+  position: absolute;
+  bottom: 0.55rem;
+  left: 50%;
+  width: 16rem;
+  height: 0.7rem;
+  translate: -50% 0;
+  background:
+    repeating-linear-gradient(90deg, rgb(0 0 0 / 0.08) 0 2px, transparent 2px 14px),
+    linear-gradient(180deg, #9a673a, #6b4423 60%, #4f3119);
+  border-radius: 3px;
+  box-shadow: 0 8px 18px rgb(0 0 0 / 0.5), inset 0 1px 0 rgb(255 225 185 / 0.35);
 }
 
 .tower {
@@ -1580,6 +2027,12 @@ input[type="color"]::-moz-color-swatch {
   transition: transform 0.9s cubic-bezier(0.55, 0, 1, 0.45);
 }
 
+.tower.fallen .level {
+  rotate: calc(var(--fall-side) * var(--level) * 1.4deg);
+  translate: calc(var(--fall-side) * var(--level) * 1.5px) 0;
+  transition: rotate 0.9s cubic-bezier(0.55, 0, 1, 0.45), translate 0.9s cubic-bezier(0.55, 0, 1, 0.45);
+}
+
 .level {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1595,6 +2048,7 @@ input[type="color"]::-moz-color-swatch {
     linear-gradient(180deg, #edcf9c, #cf9f62 70%, #b98a50);
   border-radius: 2px;
   box-shadow: inset 0 0 0 1px rgb(90 55 20 / 0.35), inset 0 1px 0 rgb(255 240 210 / 0.5);
+  transition: opacity 0.4s ease, translate 0.4s ease;
 }
 
 .level.crosswise .block {
@@ -1604,7 +2058,18 @@ input[type="color"]::-moz-color-swatch {
 }
 
 .block.gone {
-  visibility: hidden;
+  opacity: 0;
+  translate: calc(var(--fall-side) * 140%) 0;
+}
+
+@media (max-width: 479px) {
+  .tab {
+    padding: 0.35rem 0.75rem;
+  }
+
+  .tab-label {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1657,20 +2122,58 @@ input[type="color"]::-moz-color-swatch {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
+  /* On a desktop the canvas places each window where it was put, as a share of the width and in pixels down. */
+  .home:has(> .home-canvas) {
+    align-content: start;
+  }
+
+  .home-canvas {
+    display: block;
+    position: relative;
+    height: var(--canvas-height);
+  }
+
+  .home-window {
+    position: absolute;
+    top: var(--y);
+    left: calc(var(--x) * 100%);
+    width: calc(var(--w) * 100%);
+  }
+
+  .home-canvas.editing {
+    background-image: radial-gradient(color-mix(in srgb, var(--heading-color) 25%, transparent) 1px, transparent 1.5px);
+    background-size: 24px 24px;
+    border-radius: var(--radius);
+  }
+
+  .window-grip {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    display: block;
+    width: 1.4rem;
+    height: 1.4rem;
+    background: linear-gradient(135deg, transparent 50%, var(--heading-color) 50%);
+    border-bottom-right-radius: var(--radius);
+    cursor: nwse-resize;
+  }
+
   .home-top .notepad textarea,
+  .window-body .notepad textarea,
   .notes-main .notepad textarea {
     resize: none;
   }
 
-  .dice-page.animated {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  .dice-page.with-mat {
+    grid-template-columns: minmax(0, 30rem) minmax(0, 1fr);
     grid-template-areas:
       "roller mat"
-      "settings mat";
+      "settings mat"
+      "tower mat";
     align-items: start;
   }
 
-  .dice-page.animated .dice-roller {
+  .dice-page.with-mat .dice-roller {
     grid-area: roller;
   }
 
@@ -1684,13 +2187,8 @@ input[type="color"]::-moz-color-swatch {
     grid-area: settings;
   }
 
-  .app-header h1 {
-    font-size: 1.6rem;
-  }
-
-  .brand-mark {
-    width: 2.6rem;
-    height: 2.6rem;
+  .tower-settings {
+    grid-area: tower;
   }
 
   .jenga-layout {

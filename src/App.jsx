@@ -4,8 +4,12 @@ import DiceRoller from "./components/DiceRoller.jsx";
 import CardDrawer from "./components/CardDrawer.jsx";
 import Notepad from "./components/Notepad.jsx";
 import Jenga from "./components/Jenga.jsx";
+import CharacterSheet from "./components/CharacterSheet.jsx";
+import AccountMenu from "./components/AccountMenu.jsx";
 import Icon from "./components/Icon.jsx";
+import useAccount, { AccountProvider } from "./hooks/useAccount.jsx";
 import useStoredState from "./hooks/useStoredState.js";
+import { TOOLS } from "./lib/tools.js";
 
 const THEMES = [
   { id: "tabletop", label: "Tabletop" },
@@ -21,18 +25,22 @@ const THEMES = [
 ];
 const THEME_IDS = THEMES.map((t) => t.id);
 
-const TABS = [
-  { id: "home", label: "Home", icon: "home" },
-  { id: "dice", label: "Dice Roller", icon: "d20" },
-  { id: "cards", label: "Card Drawer", icon: "cards" },
-  { id: "notes", label: "Notepad", icon: "quill" },
-  { id: "jenga", label: "Jenga", icon: "tower" },
-];
+const TABS = [{ id: "home", label: "Home", icon: "home" }, ...TOOLS];
 
 export default function App() {
+  return (
+    <AccountProvider>
+      <Toolkit />
+    </AccountProvider>
+  );
+}
+
+function Toolkit() {
+  const { account } = useAccount();
   const [theme, setTheme] = useStoredState("ttrpg-toolkit-theme", THEME_IDS[0], THEME_IDS);
   const [tab, setTab] = useState(TABS[0].id);
   const [stack, setStack] = useState(null);
+  const [toolSlot, setToolSlot] = useState(null);
 
   useLayoutEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -41,10 +49,7 @@ export default function App() {
   return (
     <>
       <header className="app-header">
-        <div className="brand">
-          <Icon name="d20" className="brand-mark" />
-          <h1>TTRPG Player Toolkit</h1>
-        </div>
+        <h1 className="visually-hidden">TTRPG Player Toolkit</h1>
         <nav className="tabs" role="tablist">
           {TABS.map((t) => (
             <button
@@ -52,14 +57,16 @@ export default function App() {
               type="button"
               role="tab"
               aria-selected={tab === t.id}
+              aria-label={t.label}
               className="tab"
               onClick={() => setTab(t.id)}
             >
               <Icon name={t.icon} />
-              {t.label}
+              <span className="tab-label">{t.label}</span>
             </button>
           ))}
         </nav>
+        <div className="header-tools" ref={setToolSlot} />
         <label className="theme-picker">
           <Icon name="palette" />
           <span className="visually-hidden">Style</span>
@@ -69,8 +76,10 @@ export default function App() {
             ))}
           </select>
         </label>
+        <AccountMenu />
       </header>
-      {tab === "home" && <Home stack={stack} setStack={setStack} />}
+      {account.loginError && <p className="login-error" role="alert">{account.loginError}</p>}
+      {tab === "home" && <Home stack={stack} setStack={setStack} toolSlot={toolSlot} />}
       {tab === "dice" && <DiceRoller />}
       {tab === "cards" && (
         <main className="tab-main">
@@ -80,6 +89,11 @@ export default function App() {
       {tab === "notes" && (
         <main className="tab-main notes-main">
           <Notepad />
+        </main>
+      )}
+      {tab === "sheet" && (
+        <main className="tab-main">
+          <CharacterSheet />
         </main>
       )}
       {tab === "jenga" && (

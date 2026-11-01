@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { addDeck, createStack } from "../lib/cards.js";
+import { CARD_ASPECTS, addDeck, createStack } from "../lib/cards.js";
 import useStoredState from "../hooks/useStoredState.js";
 import Pile from "./Pile.jsx";
 import Icon from "./Icon.jsx";
@@ -13,8 +13,12 @@ export default function CardDrawer({ stack, setStack }) {
   const [deckCount, setDeckCount] = useState("1");
   const [includeJokers, setIncludeJokers] = useState(false);
   const [splitArcana, setSplitArcana] = useState(false);
-  const [cardBack, setCardBack] = useStoredState("ttrpg-toolkit-card-back", "");
+  const [playingBack, setPlayingBack] = useStoredState("ttrpg-toolkit-card-back", "");
+  const [tarotBack, setTarotBack] = useStoredState("ttrpg-toolkit-tarot-back", "");
+  const backs = { playing: [playingBack, setPlayingBack], tarot: [tarotBack, setTarotBack] };
+  const [cardBack, setCardBack] = backs[type];
   const isTarot = type === "tarot";
+  const backName = isTarot ? "Tarot back" : "Playing card back";
 
   function handleBuild(event) {
     event.preventDefault();
@@ -71,10 +75,18 @@ export default function CardDrawer({ stack, setStack }) {
           </label>
         )}
         <button type="submit">Build Deck</button>
-        <ImageUpload label="Card back" maxSize={CARD_BACK_SIZE} onChange={setCardBack} />
-        {cardBack && (
-          <button type="button" className="secondary" onClick={() => setCardBack("")}>Reset back</button>
-        )}
+        <div className="controls-aside">
+          <ImageUpload
+            label={backName}
+            maxSize={CARD_BACK_SIZE}
+            aspect={CARD_ASPECTS[type]}
+            fitHint={`a ${backName.toLowerCase()}`}
+            onChange={setCardBack}
+          />
+          {cardBack && (
+            <button type="button" className="secondary" onClick={() => setCardBack("")}>Reset back</button>
+          )}
+        </div>
       </form>
 
       {stack && (
@@ -92,7 +104,7 @@ export default function CardDrawer({ stack, setStack }) {
                 key={pile.name}
                 pile={pile}
                 type={stack.type}
-                cardBack={cardBack}
+                cardBack={backs[stack.type][0]}
                 onAction={(action) => updatePile(i, action)}
               />
             ))}

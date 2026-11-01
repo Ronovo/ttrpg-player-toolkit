@@ -226,30 +226,6 @@
       }
     },
     {
-      "id": "grandfather-clock",
-      "label": "Grandfather Clock",
-      "height": 15.0,
-      "entry": [
-        0.1268,
-        4.8,
-        0.2719
-      ],
-      "exit": [
-        4.1,
-        1.6,
-        0
-      ],
-      "approach": {
-        "rise": 1.0,
-        "distance": 7
-      },
-      "collider": {
-        "shape": "cylinder",
-        "radius": 2.4,
-        "height": 15.0
-      }
-    },
-    {
       "id": "rocket",
       "label": "Rocket",
       "height": 15.0,

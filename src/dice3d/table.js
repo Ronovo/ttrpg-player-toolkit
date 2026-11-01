@@ -1,8 +1,10 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import diceData from "./dice.json";
 import props from "./props.json";
+import { modelUrl } from "../lib/diceSets.js";
 import {
   createTable, setBounds, throwDice, clearDice, step, restingFaces, rollTypes, rollValues, addObstacle, clearObstacles,
 } from "./physics.js";
@@ -20,7 +22,7 @@ const AIM_LIMIT = Math.max(...props.towers.map((tower) => tower.height)) * 0.6;
 const ZOOM_MS = 500;
 const DESKTOP_LAYOUT = window.matchMedia("(min-width: 900px)");
 
-const loader = new GLTFLoader();
+const loader = new GLTFLoader().setDRACOLoader(new DRACOLoader());
 const loadModel = (url) => loader.loadAsync(url);
 const diceSets = new Map();
 // "overlay" throws dice across the whole window; "mat" rolls them on the Dice Roller tab's mat.
@@ -51,9 +53,11 @@ function createView() {
   return { renderer, scene, light, rimLight, camera: null, table: createTable(), meshes: [], sets: new Map(), roll: null };
 }
 
-function aimLights({ light, rimLight }, halfWidth, halfDepth) {
-  light.position.set(-halfWidth * 0.4, 40, -halfDepth * 0.6);
-  rimLight.position.set(halfWidth * 0.6, 12, halfDepth * 0.8);
+// The key light comes in from `front`'s side of z: behind the dice for the top-down window table, and from the
+// camera's side on the mat so the tower's face and door are lit and its shadow falls back across the mat.
+function aimLights({ light, rimLight }, halfWidth, halfDepth, front = -1) {
+  light.position.set(-halfWidth * 0.4, 40, front * halfDepth * 0.6);
+  rimLight.position.set(halfWidth * 0.6, 12, -front * halfDepth * 0.8);
   const shadowReach = Math.max(halfWidth, halfDepth) * 1.2;
   Object.assign(light.shadow.camera, { left: -shadowReach, right: shadowReach, top: shadowReach, bottom: -shadowReach, far: 100 });
   light.shadow.camera.updateProjectionMatrix();
@@ -63,13 +67,19 @@ function render(view) {
   view.renderer.render(view.scene, view.camera);
 }
 
+// A see-through floor that only shows the shadows falling on it, one unit square until scaled.
+function shadowFloor() {
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.ShadowMaterial({ opacity: 0.28 }));
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  return floor;
+}
+
 function createOverlay() {
   const view = createView();
   view.renderer.domElement.className = "dice-table faded";
   document.body.append(view.renderer.domElement);
-  view.floor = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.ShadowMaterial({ opacity: 0.28 }));
-  view.floor.rotation.x = -Math.PI / 2;
-  view.floor.receiveShadow = true;
+  view.floor = shadowFloor();
   view.scene.add(view.floor);
   view.camera = new THREE.PerspectiveCamera(30, 1, 1, CAMERA_HEIGHT * 2);
   view.camera.position.set(0, CAMERA_HEIGHT, 0);
@@ -103,9 +113,13 @@ function createMatView() {
   const { width, depth } = props.mat;
   view.renderer.domElement.className = "mat-canvas";
   setBounds(view.table, width / 2, depth / 2);
-  aimLights(view, width / 2, depth / 2);
+  aimLights(view, width / 2, depth / 2, 1);
   view.camera = new THREE.PerspectiveCamera(MAT_FOV, 16 / 10, 1, 400);
   view.mat = createMat(view.scene);
+  const ground = shadowFloor();
+  ground.scale.set(width * 4, depth * 4, 1);
+  ground.position.y = -0.01;
+  view.scene.add(ground);
   view.tower = null;
   view.observer = new ResizeObserver(() => {
     resizeMat(view);
@@ -204,11 +218,11 @@ function prepareSet(gltf) {
   return gltf.scene;
 }
 
-function fetchSet(setId) {
-  if (!diceSets.has(setId)) {
-    diceSets.set(setId, loader.loadAsync(`${import.meta.env.BASE_URL}dice/${setId}.glb`).then(prepareSet));
+function fetchSet(set) {
+  if (!diceSets.has(set.id)) {
+    diceSets.set(set.id, loader.loadAsync(modelUrl(set)).then(prepareSet));
   }
-  return diceSets.get(setId);
+  return diceSets.get(set.id);
 }
 
 // The mat fades its dice out by their opacity, so it rolls a copy of the set with see-through materials.
@@ -237,24 +251,25 @@ async function warmUp(view, diceSet) {
   return diceSet;
 }
 
-// Each view loads a set once and keeps its own warmed-up copy.
-function loadSet(view, setId) {
-  if (!view.sets.has(setId)) {
-    const shared = fetchSet(setId);
-    view.sets.set(setId, (view.mat ? shared.then(fadeable) : shared).then((diceSet) => warmUp(view, diceSet)));
+// Each view loads a set once and keeps its own warmed-up copy. `set` is an entry of dice.json's sets, or an
+// uploaded set.
+function loadSet(view, set) {
+  if (!view.sets.has(set.id)) {
+    const shared = fetchSet(set);
+    view.sets.set(set.id, (view.mat ? shared.then(fadeable) : shared).then((diceSet) => warmUp(view, diceSet)));
   }
-  return view.sets.get(setId);
+  return view.sets.get(set.id);
 }
 
 // Gets the window table and a dice set ready before the first roll. Safe to call again; work is only done once.
-export function prepareTable(setId) {
+export function prepareTable(set) {
   overlay ??= createOverlay();
-  return loadSet(overlay, setId);
+  return loadSet(overlay, set);
 }
 
-export function prepareMat(setId) {
+export function prepareMat(set) {
   mat ??= createMatView();
-  return loadSet(mat, setId);
+  return loadSet(mat, set);
 }
 
 // Puts the mat's canvas in `container` and keeps it sized to it. Returns a function that takes it out again.
@@ -372,13 +387,13 @@ function animate(view, time) {
 
 // Throws the dice and resolves with each die's value once they stop, or with null if another roll
 // replaces this one first. On the mat with a tower standing, the dice go through the tower.
-async function rollIn(view, count, sides, setId) {
+async function rollIn(view, count, sides, set) {
   if (view.roll) endRoll(view, null);
   const roll = { sides, tower: view.tower ?? null };
   const done = new Promise((resolve) => (roll.resolve = resolve));
   view.roll = roll;
 
-  const diceSet = await loadSet(view, setId);
+  const diceSet = await loadSet(view, set);
   if (view.roll !== roll) return done;
   removeDice(view);
   const types = rollTypes(count, sides);
@@ -389,7 +404,6 @@ async function rollIn(view, count, sides, setId) {
   });
   diceMaterials(view).forEach((material) => (material.opacity = 1));
   const dice = types.map((type) => ({ type, shape: diceData.dice[type] }));
-  const set = diceData.sets.find((s) => s.id === setId);
   if (roll.tower) {
     roll.drop = startDrop(roll.tower, view.meshes.length);
     roll.launch = () => throwDice(view.table, dice, set, { wide: true, exit: roll.tower.exit });
@@ -402,12 +416,12 @@ async function rollIn(view, count, sides, setId) {
   return done;
 }
 
-export async function rollOnTable(count, sides, setId) {
+export async function rollOnTable(count, sides, set) {
   overlay ??= createOverlay();
-  return rollIn(overlay, count, sides, setId);
+  return rollIn(overlay, count, sides, set);
 }
 
-export async function rollOnMat(count, sides, setId) {
+export async function rollOnMat(count, sides, set) {
   mat ??= createMatView();
-  return rollIn(mat, count, sides, setId);
+  return rollIn(mat, count, sides, set);
 }

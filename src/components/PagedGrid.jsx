@@ -1,7 +1,7 @@
 import Icon from "./Icon.jsx";
 import ThumbGrid from "./ThumbGrid.jsx";
 
-export const PAGE_SIZE = 9;
+export const PAGE_SIZE = 10;
 
 export function pageOf(items, id) {
   return Math.max(0, Math.floor(items.findIndex((item) => item.id === id) / PAGE_SIZE));

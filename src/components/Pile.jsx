@@ -1,4 +1,4 @@
-import { discardDrawn, drawCard, shuffleDiscardIn, shufflePile } from "../lib/cards.js";
+import { CARD_ASPECTS, discardDrawn, drawCard, shuffleDiscardIn, shufflePile } from "../lib/cards.js";
 import Card from "./Card.jsx";
 import CardBack from "./CardBack.jsx";
 
@@ -16,7 +16,7 @@ export default function Pile({ pile, type, cardBack, onAction }) {
   const canReverse = type === "tarot";
   const left = pile.drawPile.length;
   return (
-    <div className={`pile ${type}`}>
+    <div className={`pile ${type}`} style={{ "--card-aspect": CARD_ASPECTS[type] }}>
       <h3>{pile.name}</h3>
       <p className="counts">
         <span className="chip">Draw pile: {left}</span>

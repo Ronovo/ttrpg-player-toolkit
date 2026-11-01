@@ -138,17 +138,15 @@ describe('the roll mat', () => {
     expect(mat.material.map).toBe(textures.get(`/mats/${props.surfaces[0].id}-color.webp`));
   });
 
-  it('crops an uploaded picture to cover the mat, white-lit and without sheen', async () => {
+  it('lays an uploaded picture over the whole mat as it is, white-lit and without sheen', async () => {
     const mat = createMat(new THREE.Scene());
     await dressMat(mat, { surface: 'felt', color: '#123456', image: 'data:wide', rim: 'none' }, vi.fn(), 4);
     const picture = textures.get('data:wide');
     expect(mat.material.map).toBe(picture);
     expect(mat.material.normalMap).toBeNull();
     expect([mat.material.sheen, mat.material.color.getHexString()]).toEqual([0, 'ffffff']);
-    const matAspect = props.mat.width / props.mat.depth;
-    expect(picture.repeat.x).toBeCloseTo(Math.min(1, matAspect / 2));
-    expect(picture.repeat.y).toBeCloseTo(Math.min(1, 2 / matAspect));
-    expect(picture.offset.x).toBeCloseTo((1 - picture.repeat.x) / 2);
+    expect([picture.repeat.x, picture.repeat.y, picture.offset.x, picture.offset.y]).toEqual([1, 1, 0, 0]);
+    expect(picture.colorSpace).toBe(THREE.SRGBColorSpace);
   });
 
   it('keeps the same uploaded picture and frees the old one when it changes', async () => {

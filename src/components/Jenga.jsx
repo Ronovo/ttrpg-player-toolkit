@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import useStoredState, { parseStored } from "../hooks/useStoredState.js";
-import { TENSIONS, condition, leanAmount, newTower, pull } from "../lib/jenga.js";
+import { TENSIONS, condition, fallenSoFar, leanAmount, newTower, pull } from "../lib/jenga.js";
 import Icon from "./Icon.jsx";
 
 export default function Jenga() {
@@ -9,6 +9,8 @@ export default function Jenga() {
   const tower = useMemo(() => parseStored(saved, null) ?? newTower(tension), [saved, tension]);
   const started = tower.pulls > 0;
   const status = tower.fallen ? "The tower fell!" : condition(tower);
+  const conditionId = tower.fallen ? "fallen" : status.toLowerCase();
+  const risk = tower.fallen ? 1 : fallenSoFar(tower);
 
   return (
     <section className="panel jenga">
@@ -24,7 +26,12 @@ export default function Jenga() {
             </select>
           </label>
           <div className="buttons">
-            <button type="button" disabled={tower.fallen} onClick={() => setSaved(JSON.stringify(pull(tower)))}>
+            <button
+              type="button"
+              className="action-button"
+              disabled={tower.fallen}
+              onClick={() => setSaved(JSON.stringify(pull(tower)))}
+            >
               Pull
             </button>
             {started && (
@@ -33,8 +40,20 @@ export default function Jenga() {
           </div>
           <p className="jenga-status" aria-live="polite">
             <span className="chip">Pulls: {tower.pulls}</span>
-            <span className="chip" data-condition={tower.fallen ? "fallen" : status.toLowerCase()}>{status}</span>
+            <span className="chip" data-condition={conditionId}>{status}</span>
           </p>
+          <div
+            className="risk-meter"
+            role="meter"
+            aria-label="Chance it has fallen"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(risk * 100)}
+            data-condition={conditionId}
+            style={{ "--risk": risk }}
+          >
+            <span />
+          </div>
         </div>
         <div className="tower-area" aria-hidden="true">
           <div
