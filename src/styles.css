@@ -408,7 +408,7 @@
   scrollbar-color: var(--panel-border) transparent;
 }
 
-* {
+*:where(:not(.pdfViewer, .pdfViewer *)) {
   box-sizing: border-box;
 }
 
