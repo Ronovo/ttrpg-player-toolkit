@@ -14,8 +14,9 @@ function loadReader() {
 }
 
 // One uploaded sheet in the PDF reader. What is typed into its fields is saved SAVE_DELAY_MS after typing stops,
-// and straight away when the reader closes with a save still waiting.
-function SheetView({ sheet }) {
+// and straight away when the reader closes with a save still waiting, unless `dropping` holds this sheet's id
+// because it is being removed or replaced.
+function SheetView({ sheet, dropping }) {
   const container = useRef(null);
   const reader = useRef(null);
   const timer = useRef(null);
@@ -25,6 +26,7 @@ function SheetView({ sheet }) {
 
   async function save() {
     timer.current = null;
+    if (dropping.current === sheet.id) return;
     setStatus("Saving...");
     try {
       await api("/api/sheet/values", { method: "PUT", body: JSON.stringify(reader.current.values()) });
@@ -109,6 +111,7 @@ function SheetShelf() {
   const [error, setError] = useState("");
   const [replacing, setReplacing] = useState(null);
   const [removing, setRemoving] = useState(false);
+  const dropping = useRef(null);
 
   useEffect(() => {
     api("/api/sheet").then((data) => setSheet(data.sheet)).catch((failure) => setError(failure.message));
@@ -117,11 +120,13 @@ function SheetShelf() {
   async function upload(file) {
     setReplacing(null);
     setError("");
+    dropping.current = sheet?.id;
     const form = new FormData();
     form.append("file", file);
     try {
       setSheet((await api("/api/sheet", { method: "PUT", body: form })).sheet);
     } catch (failure) {
+      dropping.current = null;
       setError(failure.message);
     }
   }
@@ -136,10 +141,12 @@ function SheetShelf() {
 
   async function remove() {
     setRemoving(false);
+    dropping.current = sheet.id;
     try {
       await api("/api/sheet", { method: "DELETE" });
       setSheet(null);
     } catch (failure) {
+      dropping.current = null;
       setError(failure.message);
     }
   }
@@ -174,7 +181,7 @@ function SheetShelf() {
       )}
       {error && <p className="form-error" role="alert">{error}</p>}
       {sheet === null && <p className="form-note">Upload a character sheet PDF. A fillable one can be filled in right here.</p>}
-      {sheet && <SheetView key={sheet.id} sheet={sheet} />}
+      {sheet && <SheetView key={sheet.id} sheet={sheet} dropping={dropping} />}
     </>
   );
 }

@@ -24,7 +24,7 @@ stack in one column, in the order they sit on the canvas.
   dice tower on the mat: the dice drop in through a hole in its top or side and roll out of its door. There are
   nine, from a lighthouse and a windmill to a rocket and a haunted tree.
 - **Card Drawer:** build a stack from any number of playing card decks (with or without jokers) or tarot decks.
-  Draw, shuffle, discard and shuffle the discard back in, and add another deck at any time. Tarot cards come up
+  Draw, shuffle, discard and shuffle the discard back in. Tarot cards come up
   reversed half the time, and the Major and Minor Arcana can be split into two piles. Each pile shows its deck
   face down; click it to draw. The card backs follow the page style, or use a picture you upload.
 - **My Dice:** with portfolio login on, the header offers **Log in with portfolio account**. A logged-in player can

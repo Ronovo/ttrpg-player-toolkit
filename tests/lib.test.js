@@ -3,7 +3,7 @@ import { diceResult } from '../src/lib/dice.js';
 import { randomFraction, randomInt, shuffle } from '../src/lib/random.js';
 import { buildPlayingDeck, buildTarotDeck } from '../src/lib/decks.js';
 import {
-  REVERSED_CHANCE_PERCENT, addDeck, createStack, discardDrawn, drawCard, shuffleDiscardIn, shufflePile,
+  REVERSED_CHANCE_PERCENT, createStack, discardDrawn, drawCard, shuffleDiscardIn, shufflePile,
 } from '../src/lib/cards.js';
 import { TENSIONS, condition, fallenSoFar, leanAmount, newTower, pull } from '../src/lib/jenga.js';
 import { closePicture, cropToDataUrl, fileToDataUrl, fitSize, largestCrop, readPicture } from '../src/lib/images.js';
@@ -87,12 +87,6 @@ describe('card piles', () => {
     expect(stack.piles.map((pile) => [pile.name, pile.drawPile.length])).toEqual([['Major Arcana', 22],
       ['Minor Arcana', 56]]);
     expect(createStack('tarot', 1, false, false).piles.map((pile) => pile.name)).toEqual(['Tarot']);
-  });
-
-  it('adds a deck to what is still in the pile', () => {
-    const stack = createStack('playing', 1, false, false);
-    const dealt = { ...stack, piles: [drawCard(stack.piles[0], false)] };
-    expect(addDeck(dealt).piles[0].drawPile).toHaveLength(51 + 52);
   });
 
   it('draws from the top and turns cards over only when reversing is allowed', () => {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CARD_ASPECTS, addDeck, createStack } from "../lib/cards.js";
+import { CARD_ASPECTS, createStack } from "../lib/cards.js";
 import useStoredState from "../hooks/useStoredState.js";
 import Pile from "./Pile.jsx";
 import Icon from "./Icon.jsx";
@@ -96,7 +96,6 @@ export default function CardDrawer({ stack, setStack }) {
               {stack.deckCount} {stack.type === "tarot" ? "tarot" : "playing card"} deck
               {stack.deckCount === 1 ? "" : "s"}
             </span>
-            <button type="button" className="secondary" onClick={() => setStack(addDeck)}>Add Deck</button>
           </div>
           <div className="piles">
             {stack.piles.map((pile, i) => (

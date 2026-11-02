@@ -70,8 +70,12 @@ function fakePdf(info = { IsAcroFormPresent: true }) {
     getMetadata: vi.fn(async () => ({ info })),
     saveDocument: vi.fn(async () => new Uint8Array([1, 2])),
     getData: vi.fn(async () => new Uint8Array([3])),
-    destroy: vi.fn(),
   };
+}
+
+// What getDocument hands back: pdf.js frees a document through its loading task, not the document itself.
+function loadingTask(pdf) {
+  return { promise: Promise.resolve(pdf), destroy: vi.fn() };
 }
 
 function container() {
@@ -95,7 +99,7 @@ describe('the PDF reader', () => {
 
   it('opens the PDF with live form fields, fills in the saved values and fits the page width', async () => {
     const pdf = fakePdf();
-    pdfjs.getDocument.mockReturnValue({ promise: Promise.resolve(pdf) });
+    pdfjs.getDocument.mockReturnValue(loadingTask(pdf));
     const box = container();
     const data = new Uint8Array([9]);
     const onChange = vi.fn();
@@ -120,14 +124,14 @@ describe('the PDF reader', () => {
 
   it('tells a PDF with an XFA form or no form at all apart', async () => {
     for (const [info, fillable] of [[{ IsXFAPresent: true }, true], [{}, false]]) {
-      pdfjs.getDocument.mockReturnValue({ promise: Promise.resolve(fakePdf(info)) });
+      pdfjs.getDocument.mockReturnValue(loadingTask(fakePdf(info)));
       expect((await openSheet(container(), new Uint8Array(), {}, vi.fn())).fillable).toBe(fillable);
     }
   });
 
   it('hands out a copy of the typed values and waits for the next change before calling again', async () => {
     const pdf = fakePdf();
-    pdfjs.getDocument.mockReturnValue({ promise: Promise.resolve(pdf) });
+    pdfjs.getDocument.mockReturnValue(loadingTask(pdf));
     const onChange = vi.fn();
     const sheet = await openSheet(container(), new Uint8Array(), {}, onChange);
     expect(sheet.values()).toEqual({});
@@ -141,7 +145,8 @@ describe('the PDF reader', () => {
 
   it('zooms, fits the width, writes the filled PDF and closes', async () => {
     const pdf = fakePdf();
-    pdfjs.getDocument.mockReturnValue({ promise: Promise.resolve(pdf) });
+    const task = loadingTask(pdf);
+    pdfjs.getDocument.mockReturnValue(task);
     const sheet = await openSheet(container(), new Uint8Array(), {}, vi.fn());
     const [viewer] = fakes.viewers;
     sheet.zoomIn();
@@ -156,7 +161,7 @@ describe('the PDF reader', () => {
     expect(await sheet.filled()).toEqual(new Uint8Array([1, 2]));
 
     sheet.close();
-    expect([pdf.annotationStorage.onSetModified, viewer.cleanup.mock.calls.length, pdf.destroy.mock.calls.length])
+    expect([pdf.annotationStorage.onSetModified, viewer.cleanup.mock.calls.length, task.destroy.mock.calls.length])
       .toEqual([null, 1, 1]);
   });
 });

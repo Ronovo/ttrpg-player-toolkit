@@ -175,6 +175,43 @@ describe('the character sheet tab', () => {
     expect(calls.find((call) => call.key === 'DELETE /api/sheet').init.headers).toEqual({ 'X-Requested-With': 'fetch' });
   });
 
+  it('does not save what was typed on a sheet being replaced onto the new one', async () => {
+    const { calls, changed } = await openSheet({
+      'PUT /api/sheet': () => json({ sheet: NEXT }),
+      'PUT /api/sheet/values': () => empty(),
+    });
+    act(() => changed());
+    pick('Gimli.pdf');
+    reader.openSheet.mockResolvedValue(handle({ pages: 5 }));
+    fireEvent.click(button('Replace'));
+    expect(await screen.findByText('5 pages')).toBeTruthy();
+    expect(calls.some((call) => call.key === 'PUT /api/sheet/values')).toBe(false);
+
+    act(() => reader.openSheet.mock.lastCall[3]());
+    cleanup();
+    expect(calls.filter((call) => call.key === 'PUT /api/sheet/values')).toHaveLength(1);
+  });
+
+  it('does not save what was typed on a sheet being removed', async () => {
+    const { calls, changed } = await openSheet({
+      'DELETE /api/sheet': () => empty(),
+      'PUT /api/sheet/values': () => empty(),
+      'PUT /api/sheet': () => json({ sheet: NEXT }),
+    });
+    act(() => changed());
+    fireEvent.click(button('Remove'));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Remove' })[1]);
+    expect(await screen.findByText(/Upload a character sheet PDF/)).toBeTruthy();
+    expect(calls.some((call) => call.key === 'PUT /api/sheet/values')).toBe(false);
+
+    reader.openSheet.mockResolvedValue(handle({ pages: 5 }));
+    pick('Gimli.pdf');
+    expect(await screen.findByText('5 pages')).toBeTruthy();
+    act(() => reader.openSheet.mock.lastCall[3]());
+    cleanup();
+    expect(calls.filter((call) => call.key === 'PUT /api/sheet/values')).toHaveLength(1);
+  });
+
   it('shows why the server refused to load, upload or remove a sheet', async () => {
     serve({
       'GET /api/me': () => json(LOGGED_IN),
@@ -185,9 +222,10 @@ describe('the character sheet tab', () => {
     expect((await screen.findByRole('alert')).textContent).toBe('The server answered 500.');
     cleanup();
 
-    await openSheet({
+    const { calls, changed } = await openSheet({
       'PUT /api/sheet': () => json({ error: 'That file is not a PDF.' }, 400),
       'DELETE /api/sheet': () => json({ error: 'Gone wrong.' }, 500),
+      'PUT /api/sheet/values': () => empty(),
     });
     pick('notes.pdf');
     fireEvent.click(button('Replace'));
@@ -196,6 +234,9 @@ describe('the character sheet tab', () => {
     fireEvent.click(screen.getAllByRole('button', { name: 'Remove' })[1]);
     await waitFor(() => expect(screen.getByRole('alert').textContent).toBe('Gone wrong.'));
     expect(screen.getByText('2 pages')).toBeTruthy();
+    act(() => changed());
+    cleanup();
+    expect(calls.filter((call) => call.key === 'PUT /api/sheet/values')).toHaveLength(1);
   });
 
   it('says when the PDF cannot be opened or prepared for download', async () => {

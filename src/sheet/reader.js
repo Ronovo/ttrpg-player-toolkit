@@ -24,7 +24,8 @@ export async function openSheet(container, data, values, onChange) {
     annotationEditorMode: AnnotationEditorType.DISABLE,
   });
   linkService.setViewer(viewer);
-  const pdf = await getDocument({ data }).promise;
+  const task = getDocument({ data });
+  const pdf = await task.promise;
   const storage = pdf.annotationStorage;
   Object.entries(values).forEach(([id, value]) => storage.setValue(id, value));
   storage.resetModified();
@@ -51,7 +52,7 @@ export async function openSheet(container, data, values, onChange) {
     close() {
       storage.onSetModified = null;
       viewer.cleanup();
-      pdf.destroy();
+      task.destroy();
     },
   };
 }

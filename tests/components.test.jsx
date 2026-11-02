@@ -132,15 +132,14 @@ describe('the card drawer', () => {
     expect(screen.getByRole('button', { name: 'Shuffle Discard In' }).disabled).toBe(true);
   });
 
-  it('adds jokers and more decks, and thickens the deck to a limit', () => {
+  it('builds several decks with jokers, and thickens the deck to a limit', () => {
     deck();
     fireEvent.click(screen.getByRole('switch', { name: 'Include Jokers' }));
-    fireEvent.change(screen.getByLabelText('Decks'), { target: { value: '2' } });
+    fireEvent.change(screen.getByLabelText('Decks'), { target: { value: '3' } });
     fireEvent.click(screen.getByRole('button', { name: 'Build Deck' }));
-    expect(screen.getByText('2 playing card decks')).toBeTruthy();
-    expect(screen.getByText('Draw pile: 108')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'Add Deck' }));
+    expect(screen.getByText('3 playing card decks')).toBeTruthy();
     expect(screen.getByText('Draw pile: 162')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Add Deck' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Draw from Playing Cards' }).style.getPropertyValue('--depth')).toBe('8px');
   });
 

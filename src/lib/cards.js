@@ -31,7 +31,7 @@ export function createStack(type, deckCount, includeJokers, splitArcana) {
   return stack;
 }
 
-export function addDeck(stack) {
+function addDeck(stack) {
   const cards = stack.type === "tarot" ? buildTarotDeck() : buildPlayingDeck(stack.includeJokers);
   const newCards = stack.splitArcana
     ? [cards.filter((card) => card.arcana === "major"), cards.filter((card) => card.arcana === "minor")]
