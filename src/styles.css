@@ -803,8 +803,8 @@ label.check {
 }
 
 input[type="number"],
-input[type="text"],
-select {
+input[type="text"]:where(:not(.annotationLayer *)),
+select:where(:not(.annotationLayer *)) {
   min-height: 2.35rem;
   padding: 0.45rem 0.6rem;
   background-color: var(--input-bg);
@@ -817,13 +817,13 @@ select {
 }
 
 input[type="number"]:hover,
-input[type="text"]:hover,
-select:hover {
+input[type="text"]:where(:not(.annotationLayer *)):hover,
+select:where(:not(.annotationLayer *)):hover {
   border-color: color-mix(in srgb, var(--input-border), var(--heading-color) 40%);
 }
 
 /* Two half-filled squares side by side make a small down-pointing triangle in the text color. */
-select {
+select:where(:not(.annotationLayer *)) {
   appearance: none;
   padding-right: 2rem;
   background-image:
@@ -846,7 +846,7 @@ input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
 }
 
-input[type="checkbox"] {
+input[type="checkbox"]:where(:not(.annotationLayer *)) {
   position: relative;
   flex: none;
   width: 2.5rem;
@@ -861,7 +861,7 @@ input[type="checkbox"] {
   transition: background 0.2s, border-color 0.2s;
 }
 
-input[type="checkbox"]::before {
+input[type="checkbox"]:where(:not(.annotationLayer *))::before {
   content: "";
   position: absolute;
   top: 2px;
@@ -874,12 +874,12 @@ input[type="checkbox"]::before {
   transition: transform 0.2s, background 0.2s;
 }
 
-input[type="checkbox"]:checked {
+input[type="checkbox"]:where(:not(.annotationLayer *)):checked {
   background: var(--accent);
   border-color: transparent;
 }
 
-input[type="checkbox"]:checked::before {
+input[type="checkbox"]:where(:not(.annotationLayer *)):checked::before {
   background: var(--accent-text);
   transform: translateX(1.1rem);
 }
