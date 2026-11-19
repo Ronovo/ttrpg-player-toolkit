@@ -17,9 +17,11 @@ export default mergeConfig(viteConfig, defineConfig({
   test: {
     environment: 'jsdom',
     include: ['tests/**/*.test.{js,jsx}'],
+    setupFiles: ['coverage-index/tools/vitest-tests-setup.mjs'],
+    reporters: ['default', 'coverage-index/tools/vitest-tests-reporter.mjs'],
     coverage: {
       reportOnFailure: true,
-      provider: 'v8',
+      provider: 'istanbul',
       include: ['src/**/*.{js,jsx}'],
       reporter: ['text', 'html', 'json-summary'],
       reportsDirectory: 'coverage/js',
